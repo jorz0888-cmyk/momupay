@@ -274,3 +274,23 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 .modal li{padding:8px 0;border-bottom:1px solid var(--sand);font-size:14px;color:var(--bark)}
 .modal__note{font-size:12px;color:var(--mocha);text-align:center}
 @media(max-width:768px){.modal{padding:36px 24px}.modal__num{font-size:48px}}
+
+/* FORM */
+.form-wrap{
+  max-width:560px;margin:0 auto;text-align:left;
+  background:var(--cream);border-radius:var(--r-lg);padding:40px 36px;
+  box-shadow:0 8px 30px rgba(92,74,50,.08);
+}
+.form-field{margin-bottom:20px}
+.form-field label{display:block;font-size:14px;font-weight:700;margin-bottom:6px;color:var(--espresso)}
+.req{color:var(--terra);font-size:12px}
+.form-field input,.form-field select,.form-field textarea{
+  width:100%;padding:12px 16px;border:1.5px solid var(--sand);border-radius:10px;
+  font-family:var(--jp);font-size:15px;background:var(--white);color:var(--espresso);
+  transition:border-color .2s;outline:none;
+}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--terra)}
+.form-field input::placeholder,.form-field textarea::placeholder{color:var(--sand)}
+.form-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B7355' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
+.form-field textarea{resize:vertical;min-height:120px}
+@media(max-width:768px){.form-wrap{padding:28px 20px}}

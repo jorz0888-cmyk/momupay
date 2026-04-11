@@ -264,8 +264,40 @@ function App() {
           <span className="tag">Contact</span>
           <h2>お問い合わせ</h2>
           <p className="contact__sub">導入のご相談・ご質問はお気軽にどうぞ。</p>
-          <div className="contact__cards">
-            <div className="ccard"><div className="ccard__icon">✉️</div><h3>メール</h3><p className="ccard__val">info@momupay.com</p></div>
+          <div className="form-wrap">
+            <div className="form-field">
+              <label>サロン名 <span className="req">*</span></label>
+              <input type="text" placeholder="決まっていない場合は「未定」と入力" />
+            </div>
+            <div className="form-field">
+              <label>お名前 <span className="req">*</span></label>
+              <input type="text" placeholder="山田 太郎" />
+            </div>
+            <div className="form-field">
+              <label>メールアドレス <span className="req">*</span></label>
+              <input type="email" placeholder="example@email.com" />
+            </div>
+            <div className="form-field">
+              <label>電話番号</label>
+              <input type="tel" placeholder="090-1234-5678" />
+            </div>
+            <div className="form-field">
+              <label>業態 <span className="req">*</span></label>
+              <select defaultValue="">
+                <option value="" disabled>選択してください</option>
+                <option value="リラクゼーション">リラクゼーション</option>
+                <option value="整体・骨盤矯正">整体・骨盤矯正</option>
+                <option value="エステ">エステ</option>
+                <option value="アロマ">アロマ</option>
+                <option value="ネイル">ネイル</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+            <div className="form-field">
+              <label>お問い合わせ内容 <span className="req">*</span></label>
+              <textarea rows="5" placeholder="ご質問やご相談内容をご記入ください"></textarea>
+            </div>
+            <button className="btn btn--dark btn--full" type="button">送信する</button>
           </div>
         </div>
       </section>
@@ -353,11 +385,10 @@ function App() {
                 <li>✓ 売上レポート・分析</li>
                 <li>✓ ノーショー対策機能</li>
                 <li>✓ メール・チャットサポート</li>
-                <li>✓ 振込手数料 無料（月2回）</li>
               </ul>
               <button className="btn btn--dark btn--full" onClick={() => { setShowPricing(false); scrollTo('contact') }}>無料で始める</button>
             </div>
-            <p className="modal__note">※ 決済手数料にはクレジットカード処理手数料が含まれます。<br />※ 売上振込は15日締め・月末締めの月2回。</p>
+            <p className="modal__note">※ 決済手数料にはクレジットカード処理手数料が含まれます。<br />※ 売上振込は15日締め・月末締めの月2回。振込手数料（250円+税/回）はサロン様のご負担となります。</p>
           </div>
         </div>
       )}
