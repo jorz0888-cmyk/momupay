@@ -16,6 +16,38 @@ function App() {
   const [legalOpen, setLegalOpen] = useState(null)
   const [visibleSections, setVisibleSections] = useState(new Set())
   const observerRef = useRef(null)
+  const [form, setForm] = useState({ salonName: '', name: '', email: '', phone: '', businessType: '', message: '' })
+  const [formStatus, setFormStatus] = useState('idle') // idle | sending | success | error
+  const [formError, setFormError] = useState('')
+
+  const handleFormChange = (field) => (e) => {
+    setForm(prev => ({ ...prev, [field]: e.target.value }))
+  }
+
+  const handleSubmit = async () => {
+    const required = { salonName: 'サロン名', name: 'お名前', email: 'メールアドレス', businessType: '業態', message: 'お問い合わせ内容' }
+    for (const [key, label] of Object.entries(required)) {
+      if (!form[key].trim()) {
+        setFormError(`${label}を入力してください。`)
+        setFormStatus('error')
+        return
+      }
+    }
+    setFormStatus('sending')
+    setFormError('')
+    try {
+      const res = await fetch('https://n8n.kikitte.com/webhook/momupay-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error('送信に失敗しました。')
+      setFormStatus('success')
+    } catch (err) {
+      setFormError(err.message || '送信中にエラーが発生しました。')
+      setFormStatus('error')
+    }
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -264,41 +296,56 @@ function App() {
           <span className="tag">Contact</span>
           <h2>お問い合わせ</h2>
           <p className="contact__sub">導入のご相談・ご質問はお気軽にどうぞ。</p>
-          <div className="form-wrap">
-            <div className="form-field">
-              <label>サロン名 <span className="req">*</span></label>
-              <input type="text" placeholder="決まっていない場合は「未定」と入力" />
+          {formStatus === 'success' ? (
+            <div className="form-wrap" style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>✓</div>
+              <h3 style={{ marginBottom: '12px' }}>お問い合わせありがとうございます</h3>
+              <p style={{ color: '#6b6b6b' }}>内容を確認のうえ、担当者よりご連絡いたします。</p>
             </div>
-            <div className="form-field">
-              <label>お名前 <span className="req">*</span></label>
-              <input type="text" placeholder="山田 太郎" />
+          ) : (
+            <div className="form-wrap">
+              {formStatus === 'error' && formError && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#dc2626', fontSize: '14px' }}>
+                  {formError}
+                </div>
+              )}
+              <div className="form-field">
+                <label>サロン名 <span className="req">*</span></label>
+                <input type="text" placeholder="決まっていない場合は「未定」と入力" value={form.salonName} onChange={handleFormChange('salonName')} />
+              </div>
+              <div className="form-field">
+                <label>お名前 <span className="req">*</span></label>
+                <input type="text" placeholder="山田 太郎" value={form.name} onChange={handleFormChange('name')} />
+              </div>
+              <div className="form-field">
+                <label>メールアドレス <span className="req">*</span></label>
+                <input type="email" placeholder="example@email.com" value={form.email} onChange={handleFormChange('email')} />
+              </div>
+              <div className="form-field">
+                <label>電話番号</label>
+                <input type="tel" placeholder="090-1234-5678" value={form.phone} onChange={handleFormChange('phone')} />
+              </div>
+              <div className="form-field">
+                <label>業態 <span className="req">*</span></label>
+                <select value={form.businessType} onChange={handleFormChange('businessType')}>
+                  <option value="" disabled>選択してください</option>
+                  <option value="リラクゼーション">リラクゼーション</option>
+                  <option value="整体・骨盤矯正">整体・骨盤矯正</option>
+                  <option value="エステ">エステ</option>
+                  <option value="アロマ">アロマ</option>
+                  <option value="ネイル">ネイル</option>
+                  <option value="その他">その他</option>
+                </select>
+              </div>
+              <div className="form-field">
+                <label>お問い合わせ内容 <span className="req">*</span></label>
+                <textarea rows="5" placeholder="ご質問やご相談内容をご記入ください" value={form.message} onChange={handleFormChange('message')}></textarea>
+              </div>
+              <button className="btn btn--dark btn--full" type="button" onClick={handleSubmit} disabled={formStatus === 'sending'}>
+                {formStatus === 'sending' ? '送信中...' : '送信する'}
+              </button>
             </div>
-            <div className="form-field">
-              <label>メールアドレス <span className="req">*</span></label>
-              <input type="email" placeholder="example@email.com" />
-            </div>
-            <div className="form-field">
-              <label>電話番号</label>
-              <input type="tel" placeholder="090-1234-5678" />
-            </div>
-            <div className="form-field">
-              <label>業態 <span className="req">*</span></label>
-              <select defaultValue="">
-                <option value="" disabled>選択してください</option>
-                <option value="リラクゼーション">リラクゼーション</option>
-                <option value="整体・骨盤矯正">整体・骨盤矯正</option>
-                <option value="エステ">エステ</option>
-                <option value="アロマ">アロマ</option>
-                <option value="ネイル">ネイル</option>
-                <option value="その他">その他</option>
-              </select>
-            </div>
-            <div className="form-field">
-              <label>お問い合わせ内容 <span className="req">*</span></label>
-              <textarea rows="5" placeholder="ご質問やご相談内容をご記入ください"></textarea>
-            </div>
-            <button className="btn btn--dark btn--full" type="button">送信する</button>
-          </div>
+          )}
         </div>
       </section>
 
