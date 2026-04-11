@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './App.css'
 
 const IMAGES = {
@@ -10,6 +11,7 @@ const IMAGES = {
 }
 
 function App() {
+  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenu, setMobileMenu] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
@@ -102,6 +104,7 @@ function App() {
             <li onClick={() => scrollTo('features')}>特徴</li>
             <li onClick={() => scrollTo('flow')}>ご利用の流れ</li>
             <li onClick={() => setShowPricing(true)} className="nav__pricing">料金</li>
+            <li onClick={() => navigate('/register')} className="nav__register">サロン登録</li>
             <li onClick={() => scrollTo('contact')} className="nav__cta-link">お問い合わせ</li>
           </ul>
         </div>
@@ -433,7 +436,7 @@ function App() {
                 <li>✓ ノーショー対策機能</li>
                 <li>✓ メール・チャットサポート</li>
               </ul>
-              <button className="btn btn--dark btn--full" onClick={() => { setShowPricing(false); scrollTo('contact') }}>無料で始める</button>
+              <button className="btn btn--dark btn--full" onClick={() => { setShowPricing(false); navigate('/register') }}>無料で始める</button>
             </div>
             <p className="modal__note">※ 決済手数料にはクレジットカード処理手数料が含まれます。<br />※ 売上振込は15日締め・月末締めの月2回。振込手数料（250円+税/回）はサロン様のご負担となります。</p>
           </div>
