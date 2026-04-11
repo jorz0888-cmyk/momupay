@@ -360,7 +360,7 @@ function App() {
               <tr><th>電話番号</th><td>お問い合わせフォームよりご連絡ください</td></tr>
               <tr><th>メールアドレス</th><td>info@momupay.com</td></tr>
               <tr><th>サービス内容</th><td>リラクゼーションサロン向けの予約管理および決済代行サービス</td></tr>
-              <tr><th>料金</th><td>決済手数料: 決済金額の8%（税込）。初期費用・月額費用は無料。</td></tr>
+              <tr><th>料金</th><td>決済手数料: 決済金額の7.9%（税込）。初期費用・月額費用は無料。</td></tr>
               <tr><th>支払方法</th><td>クレジットカード（Visa, Mastercard, Amex, JCB）</td></tr>
               <tr><th>支払時期</th><td>サービス予約確定時に決済</td></tr>
               <tr><th>サービス提供時期</th><td>審査完了次第（通常3営業日以内）</td></tr>
@@ -377,7 +377,7 @@ function App() {
             ['terms','利用規約',<div>
               <h4>第1条（適用）</h4><p>本規約は、MomuPay（以下「当社」）が提供する予約管理・決済代行サービスの利用条件を定めるものです。</p>
               <h4>第2条（サービス内容）</h4><p>リラクゼーションサロンに対し、オンライン予約管理機能およびクレジットカード決済代行サービスを提供します。</p>
-              <h4>第3条（利用料金）</h4><p>決済金額の8%（税込）。初期費用・月額固定費用なし。</p>
+              <h4>第3条（利用料金）</h4><p>決済金額の7.9%（税込）。初期費用・月額固定費用なし。</p>
               <h4>第4条（売上金の支払い）</h4><p>手数料差し引き後、毎月15日締め・月末締めで指定口座にお振込みします。</p>
               <h4>第5条（禁止事項）</h4><p>法令違反、権利侵害、虚偽情報登録等を禁止します。</p>
               <h4>第6条（免責）</h4><p>当社の故意・重過失を除き、サービス利用に起因する損害について責任を負いません。</p>
@@ -420,7 +420,7 @@ function App() {
             <div className="modal__card">
               <div className="modal__badge">スタンダードプラン</div>
               <div className="modal__price">
-                <span className="modal__num">8</span>
+                <span className="modal__num">7.9</span>
                 <span className="modal__pct">%</span>
                 <span className="modal__per">/ 決済ごと</span>
               </div>
