@@ -5,7 +5,7 @@ const IMAGES = {
   hero: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1400&q=80',
   feature1: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=600&q=80',
   feature2: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=600&q=80',
-  feature3: 'https://images.unsplash.com/photo-1540555700478-4be289fbec6d?w=600&q=80',
+  feature3: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=600&q=80',
   cta: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=1400&q=80',
 }
 
