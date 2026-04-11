@@ -266,7 +266,6 @@ function App() {
           <p className="contact__sub">導入のご相談・ご質問はお気軽にどうぞ。</p>
           <div className="contact__cards">
             <div className="ccard"><div className="ccard__icon">✉️</div><h3>メール</h3><p className="ccard__val">info@momupay.com</p></div>
-            <div className="ccard"><div className="ccard__icon">📞</div><h3>お電話</h3><p className="ccard__val">03-XXXX-XXXX</p><p className="ccard__note">平日 10:00〜18:00</p></div>
           </div>
         </div>
       </section>
@@ -276,10 +275,10 @@ function App() {
         <div className="container">
           {[
             ['tokusho','特定商取引法に基づく表記',<table className="ltable"><tbody>
-              <tr><th>事業者名</th><td>MomuPay（運営: ○○○○）</td></tr>
-              <tr><th>代表者名</th><td>○○ ○○</td></tr>
-              <tr><th>所在地</th><td>〒XXX-XXXX 東京都○○区○○ X-X-X</td></tr>
-              <tr><th>電話番号</th><td>03-XXXX-XXXX</td></tr>
+              <tr><th>事業者名</th><td>MomuPay</td></tr>
+              <tr><th>運営責任者</th><td>渡辺 高志</td></tr>
+              <tr><th>所在地</th><td>〒101-0024 東京都千代田区神田和泉町1-6-16 ヤマトビル405</td></tr>
+              <tr><th>電話番号</th><td>お問い合わせフォームよりご連絡ください</td></tr>
               <tr><th>メールアドレス</th><td>info@momupay.com</td></tr>
               <tr><th>サービス内容</th><td>リラクゼーションサロン向けの予約管理および決済代行サービス</td></tr>
               <tr><th>料金</th><td>決済手数料: 決済金額の8%（税込）。初期費用・月額費用は無料。</td></tr>
