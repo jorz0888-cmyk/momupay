@@ -6,6 +6,7 @@ import App from './App.jsx'
 import PaymentLink from './pages/PaymentLink.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import Booking from './pages/Booking.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/pay" element={<PaymentLink />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/book/:salonId" element={<Booking />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
