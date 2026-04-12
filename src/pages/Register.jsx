@@ -44,7 +44,7 @@ function Register() {
   const handleSubmit = async () => {
     const required = [
       ['salonName', 'サロン名'], ['ownerName', '代表者名'],
-      ['email', 'メールアドレス'], ['businessType', '業態'], ['address', '店舗住所'],
+      ['email', 'メールアドレス'], ['businessType', '業態'],
     ]
     for (const [key, label] of required) {
       if (!form[key].trim()) {
@@ -127,8 +127,8 @@ function Register() {
                 </select>
               </div>
               <div style={s.field}>
-                <label style={s.label}>店舗住所 <span style={s.req}>*</span></label>
-                <input style={s.input} type="text" placeholder="東京都渋谷区..." value={form.address} onChange={onChange('address')} />
+                <label style={s.label}>店舗住所</label>
+                <input style={s.input} type="text" placeholder="未定の場合は空欄でOK" value={form.address} onChange={onChange('address')} />
               </div>
               <div style={s.field}>
                 <label style={s.label}>ホームページURL</label>
