@@ -179,17 +179,40 @@ function PaymentLink() {
   const [memo, setMemo] = useState('')
   const [generatedLink, setGeneratedLink] = useState('')
   const [copied, setCopied] = useState(false)
+  const [status, setStatus] = useState('idle') // idle | sending | error
+  const [errorMsg, setErrorMsg] = useState('')
 
   const handleAmountChange = (e) => {
     const val = e.target.value.replace(/[^0-9]/g, '')
     setAmount(val)
   }
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!amount || Number(amount) <= 0) return
-    const id = Math.random().toString(36).substring(2, 10)
-    setGeneratedLink(`https://pay.momupay.com/link/${id}`)
-    setCopied(false)
+    setStatus('sending')
+    setErrorMsg('')
+    setGeneratedLink('')
+    try {
+      const res = await fetch('https://n8n.kikitte.com/webhook/momupay-payment-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Number(amount),
+          memo,
+          salonId: 'test',
+          salonName: 'テストサロン',
+        }),
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      if (!data.url) throw new Error()
+      setGeneratedLink(data.url)
+      setCopied(false)
+      setStatus('idle')
+    } catch {
+      setErrorMsg('リンクの発行に失敗しました')
+      setStatus('error')
+    }
   }
 
   const handleCopy = async () => {
@@ -250,13 +273,19 @@ function PaymentLink() {
           <button
             style={{
               ...styles.btn,
-              ...((!amount || Number(amount) <= 0) ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
+              ...((!amount || Number(amount) <= 0 || status === 'sending') ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
             }}
             onClick={handleGenerate}
-            disabled={!amount || Number(amount) <= 0}
+            disabled={!amount || Number(amount) <= 0 || status === 'sending'}
           >
-            決済リンクを発行する
+            {status === 'sending' ? '発行中...' : '決済リンクを発行する'}
           </button>
+
+          {status === 'error' && errorMsg && (
+            <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '12px 16px', marginTop: 16, color: '#dc2626', fontSize: 14 }}>
+              {errorMsg}
+            </div>
+          )}
 
           {generatedLink && (
             <div style={styles.resultBox}>
