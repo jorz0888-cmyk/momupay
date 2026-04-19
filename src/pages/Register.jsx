@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 const s = {
@@ -35,6 +35,18 @@ function Register() {
   })
   const [status, setStatus] = useState('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const [onboardingUrl, setOnboardingUrl] = useState('')
+  const [countdown, setCountdown] = useState(5)
+
+  useEffect(() => {
+    if (status !== 'success' || !onboardingUrl) return
+    if (countdown <= 0) {
+      window.location.href = onboardingUrl
+      return
+    }
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [status, countdown, onboardingUrl])
 
   const onChange = (field) => (e) => {
     const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value
@@ -67,6 +79,8 @@ function Register() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error('送信に失敗しました。')
+      const data = await res.json().catch(() => ({}))
+      if (data.onboardingUrl) setOnboardingUrl(data.onboardingUrl)
       setStatus('success')
     } catch (err) {
       setErrorMsg(err.message || '送信中にエラーが発生しました。')
@@ -89,7 +103,18 @@ function Register() {
             <div style={s.success}>
               <div style={s.successIcon}>✓</div>
               <h2 style={s.successTitle}>ご登録ありがとうございます</h2>
-              <p style={s.successDesc}>Stripeアカウントの設定リンクを<br />メールでお送りします。</p>
+              {onboardingUrl ? (
+                <>
+                  <p style={s.successDesc}>
+                    {countdown}秒後にStripeの設定ページへ移動します...
+                  </p>
+                  <a href={onboardingUrl} style={{ ...s.link, display: 'inline-block', marginTop: 16, fontSize: 13 }}>
+                    今すぐ移動する →
+                  </a>
+                </>
+              ) : (
+                <p style={s.successDesc}>Stripeアカウントの設定リンクを<br />メールでお送りします。</p>
+              )}
             </div>
           ) : (
             <>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 const styles = {
   page: {
@@ -175,6 +176,10 @@ const styles = {
 }
 
 function PaymentLink() {
+  const [searchParams] = useSearchParams()
+  const salonId = searchParams.get('salonId') || ''
+  const salonName = searchParams.get('salonName') || 'MomuPay加盟店'
+
   const [amount, setAmount] = useState('')
   const [memo, setMemo] = useState('')
   const [generatedLink, setGeneratedLink] = useState('')
@@ -199,8 +204,8 @@ function PaymentLink() {
         body: JSON.stringify({
           amount: Number(amount),
           memo,
-          salonId: 'test',
-          salonName: 'テストサロン',
+          salonId,
+          salonName,
         }),
       })
       if (!res.ok) throw new Error()
@@ -241,7 +246,7 @@ function PaymentLink() {
       <main style={styles.main}>
         <div style={styles.card}>
           <h1 style={styles.title}>決済リンク発行</h1>
-          <p style={styles.salonName}>テストサロン</p>
+          <p style={styles.salonName}>{salonName}</p>
 
           <div style={styles.fieldGroup}>
             <label style={styles.label}>
