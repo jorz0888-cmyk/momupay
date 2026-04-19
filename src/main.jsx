@@ -10,6 +10,7 @@ import Booking from './pages/Booking.jsx'
 import RegisterComplete from './pages/RegisterComplete.jsx'
 import PaySuccess from './pages/PaySuccess.jsx'
 import PayCancel from './pages/PayCancel.jsx'
+import Legal from './pages/Legal.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -21,6 +22,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/register/complete" element={<RegisterComplete />} />
         <Route path="/pay/success" element={<PaySuccess />} />
         <Route path="/pay/cancel" element={<PayCancel />} />
+        <Route path="/legal" element={<Legal />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/book/:salonId" element={<Booking />} />
       </Routes>
