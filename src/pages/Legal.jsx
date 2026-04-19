@@ -49,14 +49,22 @@ function Legal() {
               <tr><th style={s.th}>事業者名</th><td style={s.td}>MomuPay</td></tr>
               <tr><th style={s.th}>運営責任者</th><td style={s.td}>渡辺 高志</td></tr>
               <tr><th style={s.th}>所在地</th><td style={s.td}>〒101-0024 東京都千代田区神田和泉町1-6-16 ヤマトビル405</td></tr>
-              <tr><th style={s.th}>電話番号</th><td style={s.td}>お問い合わせフォームよりご連絡ください</td></tr>
+              <tr><th style={s.th}>電話番号</th><td style={s.td}>請求があった場合には速やかに開示いたします</td></tr>
               <tr><th style={s.th}>メールアドレス</th><td style={s.td}>info@momupay.com</td></tr>
               <tr><th style={s.th}>サービス内容</th><td style={s.td}>リラクゼーションサロン向けの予約管理および決済代行サービス</td></tr>
+              <tr><th style={s.th}>販売価格</th><td style={s.td}>各加盟サロンが設定する施術料金に準じます。料金は各サロンの予約ページに表示されます。</td></tr>
               <tr><th style={s.th}>料金</th><td style={s.td}>決済手数料: 決済金額の7.9%（税込）。初期費用・月額費用は無料。</td></tr>
+              <tr><th style={s.th}>追加手数料</th><td style={s.td}>決済手数料（7.9%）以外の追加手数料はございません。</td></tr>
               <tr><th style={s.th}>支払方法</th><td style={s.td}>クレジットカード（Visa, Mastercard, Amex, JCB）</td></tr>
               <tr><th style={s.th}>支払時期</th><td style={s.td}>サービス予約確定時に決済</td></tr>
+              <tr><th style={s.th}>決済期間</th><td style={s.td}>クレジットカード決済は即時処理されます。</td></tr>
               <tr><th style={s.th}>サービス提供時期</th><td style={s.td}>審査完了次第（通常3営業日以内）</td></tr>
-              <tr><th style={s.th}>返品・キャンセル</th><td style={{ ...s.td, borderBottom: 'none' }}>各サロンのキャンセルポリシーに準じます。</td></tr>
+              <tr><th style={s.th}>返品・キャンセル</th><td style={{ ...s.td, borderBottom: 'none' }}>
+                <strong style={{ display: 'block', marginBottom: 4 }}>＜通常のキャンセル＞</strong>
+                施術前のキャンセルについては、各サロンのキャンセルポリシーに準じます。決済完了後の返金はサロンを通じて対応いたします。
+                <strong style={{ display: 'block', margin: '10px 0 4px' }}>＜サービスに問題があった場合＞</strong>
+                施術内容に問題があった場合は、info@momupay.com までご連絡ください。サロンと協議の上、返金対応いたします。
+              </td></tr>
             </tbody>
           </table>
         </section>
