@@ -404,9 +404,9 @@ function App() {
           </div>
           <p className="footer__desc">リラクゼーションサロン向け 予約管理・決済代行プラットフォーム</p>
           <div className="footer__links">
-            <span onClick={() => toggleLegal('tokusho')}>特定商取引法に基づく表記</span>
-            <span onClick={() => toggleLegal('privacy')}>プライバシーポリシー</span>
-            <span onClick={() => toggleLegal('terms')}>利用規約</span>
+            <span onClick={() => navigate('/legal#tokusho')}>特定商取引法に基づく表記</span>
+            <span onClick={() => navigate('/legal#privacy')}>プライバシーポリシー</span>
+            <span onClick={() => navigate('/legal#terms')}>利用規約</span>
           </div>
           <p className="footer__copy">© 2026 MomuPay. All rights reserved.</p>
         </div>
