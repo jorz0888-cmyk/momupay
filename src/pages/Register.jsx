@@ -305,7 +305,7 @@ function Register() {
           )}
         </div>
         <div style={s.footer}>
-          すでにアカウントをお持ちの方は<Link to="/pay" style={s.link}>こちら</Link>
+          すでにご登録済みの方は<Link to="/dashboard" style={s.link}>ダッシュボードへ</Link>
         </div>
       </main>
     </div>
