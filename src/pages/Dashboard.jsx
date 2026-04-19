@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 /* ── color tokens ── */
 const C = {
@@ -87,7 +88,7 @@ function HomeTab() {
 }
 
 /* ── Pay ── */
-function PayTab() {
+function PayTab({ salonId, salonName }) {
   const [amount, setAmount] = useState('')
   const [memo, setMemo] = useState('')
   const [link, setLink] = useState('')
@@ -101,7 +102,7 @@ function PayTab() {
     try {
       const res = await fetch('https://n8n.kikitte.com/webhook/momupay-payment-link', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Number(amount), memo, salonId: 'test', salonName: 'テストサロン' }),
+        body: JSON.stringify({ amount: Number(amount), memo, salonId, salonName }),
       })
       if (!res.ok) throw new Error()
       const data = await res.json()
@@ -289,11 +290,15 @@ const errBox = { background: '#fef2f2', border: '1px solid #fca5a5', borderRadiu
    ══════════════════════════════════════════ */
 
 function Dashboard() {
+  const [searchParams] = useSearchParams()
+  const salonId = searchParams.get('salonId') || ''
+  const salonName = searchParams.get('salonName') || 'MomuPay加盟店'
+
   const [tab, setTab] = useState('home')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const content = {
-    home: <HomeTab />, pay: <PayTab />, reservations: <ReservationsTab />,
+    home: <HomeTab />, pay: <PayTab salonId={salonId} salonName={salonName} />, reservations: <ReservationsTab />,
     customers: <CustomersTab />, sales: <SalesTab />, menus: <MenusTab />, settings: <SettingsTab />,
   }
 
@@ -326,7 +331,7 @@ function Dashboard() {
             </div>
           ))}
         </nav>
-        <div style={{ padding: '12px 20px', fontSize: 12, color: C.mocha }}>テストサロン</div>
+        <div style={{ padding: '12px 20px', fontSize: 12, color: C.mocha }}>{salonName}</div>
       </aside>
 
       {/* Main content */}
