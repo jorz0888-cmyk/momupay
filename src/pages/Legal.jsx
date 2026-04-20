@@ -46,7 +46,7 @@ function Legal() {
           <h2 style={s.cardTitle}>特定商取引法に基づく表記</h2>
           <table className="legal-table" style={s.table}>
             <tbody>
-              <tr><th style={s.th}>事業者名</th><td style={s.td}>MomuPay</td></tr>
+              <tr><th style={s.th}>事業者名</th><td style={s.td}>渡辺 高志（屋号：MomuPay）</td></tr>
               <tr><th style={s.th}>運営責任者</th><td style={s.td}>渡辺 高志</td></tr>
               <tr><th style={s.th}>所在地</th><td style={s.td}>〒101-0024 東京都千代田区神田和泉町1-6-16 ヤマトビル405</td></tr>
               <tr><th style={s.th}>電話番号</th><td style={s.td}>請求があった場合には速やかに開示いたします</td></tr>
@@ -60,10 +60,13 @@ function Legal() {
               <tr><th style={s.th}>決済期間</th><td style={s.td}>クレジットカード決済は即時処理されます。</td></tr>
               <tr><th style={s.th}>サービス提供時期</th><td style={s.td}>審査完了次第（通常3営業日以内）</td></tr>
               <tr><th style={s.th}>返品・キャンセル</th><td style={{ ...s.td, borderBottom: 'none' }}>
-                <strong style={{ display: 'block', marginBottom: 4 }}>＜通常のキャンセル＞</strong>
-                施術前のキャンセルについては、各サロンのキャンセルポリシーに準じます。決済完了後の返金はサロンを通じて対応いたします。
-                <strong style={{ display: 'block', margin: '10px 0 4px' }}>＜サービスに問題があった場合＞</strong>
-                施術内容に問題があった場合は、info@momupay.com までご連絡ください。サロンと協議の上、返金対応いたします。
+                <strong style={{ display: 'block', marginBottom: 4 }}>＜予約日時の24時間前まで＞</strong>
+                無料でキャンセル可能（全額返金）。
+                <strong style={{ display: 'block', margin: '10px 0 4px' }}>＜予約日時の24時間前以降＞</strong>
+                各サロンのキャンセルポリシーに準じ、キャンセル料が発生する場合があります。
+                <strong style={{ display: 'block', margin: '10px 0 4px' }}>＜システム障害等当社起因による決済エラーの場合＞</strong>
+                即時全額返金。
+                <div style={{ marginTop: 10 }}>返金処理はご利用のクレジットカード会社を通じて、通常 3～10 営業日以内に行われます。</div>
               </td></tr>
             </tbody>
           </table>
