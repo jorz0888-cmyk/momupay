@@ -78,13 +78,6 @@ function App() {
     setMobileMenu(false)
   }
 
-  const toggleLegal = (id) => {
-    setLegalOpen(legalOpen === id ? null : id)
-    if (legalOpen !== id) {
-      setTimeout(() => document.getElementById('legal')?.scrollIntoView({ behavior: 'smooth' }), 100)
-    }
-  }
-
   const vis = (id) => visibleSections.has(id) ? 'section--visible' : ''
 
   return (
@@ -349,49 +342,6 @@ function App() {
               </button>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* LEGAL */}
-      <section id="legal" className="legal">
-        <div className="container">
-          {[
-            ['tokusho','特定商取引法に基づく表記',<table className="ltable"><tbody>
-              <tr><th>事業者名</th><td>MomuPay</td></tr>
-              <tr><th>運営責任者</th><td>渡辺 高志</td></tr>
-              <tr><th>所在地</th><td>〒101-0024 東京都千代田区神田和泉町1-6-16 ヤマトビル405</td></tr>
-              <tr><th>電話番号</th><td>お問い合わせフォームよりご連絡ください</td></tr>
-              <tr><th>メールアドレス</th><td>info@momupay.com</td></tr>
-              <tr><th>サービス内容</th><td>リラクゼーションサロン向けの予約管理および決済代行サービス</td></tr>
-              <tr><th>料金</th><td>決済手数料: 決済金額の7.9%（税込）。初期費用・月額費用は無料。</td></tr>
-              <tr><th>支払方法</th><td>クレジットカード（Visa, Mastercard, Amex, JCB）</td></tr>
-              <tr><th>支払時期</th><td>サービス予約確定時に決済</td></tr>
-              <tr><th>サービス提供時期</th><td>審査完了次第（通常3営業日以内）</td></tr>
-              <tr><th>返品・キャンセル</th><td>各サロンのキャンセルポリシーに準じます。</td></tr>
-            </tbody></table>],
-            ['privacy','プライバシーポリシー',<div>
-              <p>MomuPay（以下「当社」）は、お客様の個人情報保護を重要な責務と認識し、以下のとおりプライバシーポリシーを定めます。</p>
-              <h4>1. 収集する情報</h4><p>氏名、メールアドレス、電話番号、クレジットカード情報（決済処理会社を通じて安全に処理）、予約履歴、サロン情報。</p>
-              <h4>2. 利用目的</h4><p>予約管理および決済処理、サービスの提供・改善、お問い合わせへの対応、法令に基づく対応。</p>
-              <h4>3. 第三者提供</h4><p>法令に基づく場合、お客様の同意がある場合、決済処理に必要な範囲を除き、第三者に提供しません。</p>
-              <h4>4. 安全管理</h4><p>PCI DSS準拠の決済基盤で処理。カード情報は当社サーバーに保存されません。</p>
-              <h4>5. お問い合わせ</h4><p>info@momupay.com までご連絡ください。</p>
-            </div>],
-            ['terms','利用規約',<div>
-              <h4>第1条（適用）</h4><p>本規約は、MomuPay（以下「当社」）が提供する予約管理・決済代行サービスの利用条件を定めるものです。</p>
-              <h4>第2条（サービス内容）</h4><p>リラクゼーションサロンに対し、オンライン予約管理機能およびクレジットカード決済代行サービスを提供します。</p>
-              <h4>第3条（利用料金）</h4><p>決済金額の7.9%（税込）。初期費用・月額固定費用なし。</p>
-              <h4>第4条（売上金の支払い）</h4><p>手数料差し引き後、毎月15日締め・月末締めで指定口座にお振込みします。</p>
-              <h4>第5条（禁止事項）</h4><p>法令違反、権利侵害、虚偽情報登録等を禁止します。</p>
-              <h4>第6条（免責）</h4><p>当社の故意・重過失を除き、サービス利用に起因する損害について責任を負いません。</p>
-              <h4>第7条（準拠法・管轄）</h4><p>日本法準拠。東京地方裁判所を専属的合意管轄とします。</p>
-            </div>],
-          ].map(([id,title,content]) => (
-            <div className="lblock" key={id}>
-              <h3 className="lblock__t" onClick={() => toggleLegal(id)}>{title}<span>{legalOpen===id?'−':'+'}</span></h3>
-              {legalOpen===id && <div className="lblock__body">{content}</div>}
-            </div>
-          ))}
         </div>
       </section>
 
