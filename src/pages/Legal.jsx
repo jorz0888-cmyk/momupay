@@ -46,7 +46,8 @@ function Legal() {
           <h2 style={s.cardTitle}>特定商取引法に基づく表記</h2>
           <table className="legal-table" style={s.table}>
             <tbody>
-              <tr><th style={s.th}>事業者名</th><td style={s.td}>渡辺 高志（屋号：MomuPay）</td></tr>
+              <tr><th style={s.th}>法人名</th><td style={s.td}>渡辺 高志</td></tr>
+              <tr><th style={s.th}>事業者名（屋号）</th><td style={s.td}>MomuPay</td></tr>
               <tr><th style={s.th}>運営責任者</th><td style={s.td}>渡辺 高志</td></tr>
               <tr><th style={s.th}>所在地</th><td style={s.td}>〒101-0024 東京都千代田区神田和泉町1-6-16 ヤマトビル405</td></tr>
               <tr><th style={s.th}>電話番号</th><td style={s.td}>請求があった場合には速やかに開示いたします</td></tr>
@@ -58,7 +59,11 @@ function Legal() {
               <tr><th style={s.th}>支払方法</th><td style={s.td}>クレジットカード（Visa, Mastercard, Amex, JCB）</td></tr>
               <tr><th style={s.th}>支払時期</th><td style={s.td}>サービス予約確定時に決済</td></tr>
               <tr><th style={s.th}>決済期間</th><td style={s.td}>クレジットカード決済は即時処理されます。</td></tr>
-              <tr><th style={s.th}>サービス提供時期</th><td style={s.td}>審査完了次第（通常3営業日以内）</td></tr>
+              <tr><th style={s.th}>サービス提供時期</th><td style={s.td}>
+                <div><strong>サロンへのご予約：</strong>決済完了と同時に予約確定（即時）</div>
+                <div style={{ marginTop: 6 }}><strong>施術サービス：</strong>各サロンの予約日時に提供</div>
+                <div style={{ marginTop: 6 }}><strong>加盟サロン向け決済代行サービス：</strong>審査完了後、通常3営業日以内</div>
+              </td></tr>
               <tr><th style={s.th}>返品・キャンセル</th><td style={{ ...s.td, borderBottom: 'none' }}>
                 <strong style={{ display: 'block', marginBottom: 4 }}>＜予約日時の24時間前まで＞</strong>
                 無料でキャンセル可能（全額返金）。
