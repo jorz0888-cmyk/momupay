@@ -46,9 +46,9 @@ function Legal() {
           <h2 style={s.cardTitle}>特定商取引法に基づく表記</h2>
           <table className="legal-table" style={s.table}>
             <tbody>
-              <tr><th style={s.th}>法人名</th><td style={s.td}>渡辺 高志</td></tr>
+              <tr><th style={s.th}>法人名</th><td style={s.td}>吉田 竜史</td></tr>
               <tr><th style={s.th}>事業者名（屋号）</th><td style={s.td}>MomuPay</td></tr>
-              <tr><th style={s.th}>運営責任者</th><td style={s.td}>渡辺 高志</td></tr>
+              <tr><th style={s.th}>運営責任者</th><td style={s.td}>吉田 竜史</td></tr>
               <tr><th style={s.th}>所在地</th><td style={s.td}>〒101-0024 東京都千代田区神田和泉町1-6-16 ヤマトビル405</td></tr>
               <tr><th style={s.th}>電話番号</th><td style={s.td}>請求があった場合には速やかに開示いたします</td></tr>
               <tr><th style={s.th}>メールアドレス</th><td style={s.td}>info@momupay.com</td></tr>
