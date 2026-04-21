@@ -67,6 +67,13 @@ const styles = {
     marginBottom: 6,
     color: '#2C2418',
   },
+  hint: {
+    fontSize: 12,
+    color: '#8B7355',
+    marginTop: 2,
+    marginBottom: 6,
+    lineHeight: 1.4,
+  },
   req: {
     color: '#C4745A',
     fontSize: 12,
@@ -278,9 +285,10 @@ function PaymentLink() {
 
           <div style={styles.fieldGroup}>
             <label style={styles.label}>お客様名（任意）</label>
+            <div style={styles.hint}>※ サロン側の控え用です。お客様には表示されません。</div>
             <input
               type="text"
-              placeholder="例：田中様、山田花子"
+              placeholder="例：田中様（サロン控え用）"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               style={styles.input}
@@ -289,9 +297,10 @@ function PaymentLink() {
 
           <div style={styles.fieldGroup}>
             <label style={styles.label}>施術内容（任意）</label>
+            <div style={styles.hint}>※ お客様のお支払い画面に表示されます。実際の内容を正確にご入力ください。</div>
             <input
               type="text"
-              placeholder="例：全身もみほぐし60分"
+              placeholder="例：全身もみほぐし60分（お客様に表示）"
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               style={styles.input}

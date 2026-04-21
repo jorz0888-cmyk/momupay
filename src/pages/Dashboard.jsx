@@ -142,11 +142,13 @@ function PayTab({ salonId, salonName }) {
         </div>
         <div style={fieldGroup}>
           <label style={label}>お客様名（任意）</label>
-          <input style={input} type="text" placeholder="例：田中様、山田花子" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+          <div style={hint}>※ サロン側の控え用です。お客様には表示されません。</div>
+          <input style={input} type="text" placeholder="例：田中様（サロン控え用）" value={customerName} onChange={e => setCustomerName(e.target.value)} />
         </div>
         <div style={fieldGroup}>
           <label style={label}>施術内容（任意）</label>
-          <input style={input} type="text" placeholder="例：全身もみほぐし60分" value={memo} onChange={e => setMemo(e.target.value)} />
+          <div style={hint}>※ お客様のお支払い画面に表示されます。実際の内容を正確にご入力ください。</div>
+          <input style={input} type="text" placeholder="例：全身もみほぐし60分（お客様に表示）" value={memo} onChange={e => setMemo(e.target.value)} />
         </div>
         <button style={{ ...btn, ...((!amount || Number(amount) <= 0 || status === 'sending') ? { opacity: .5, cursor: 'not-allowed' } : {}) }}
           onClick={generate} disabled={!amount || Number(amount) <= 0 || status === 'sending'}>
@@ -328,6 +330,7 @@ const h2 = { fontSize: 20, fontWeight: 900, marginBottom: 20 }
 const card = { background: C.white, borderRadius: 16, padding: 24, boxShadow: '0 2px 12px rgba(92,74,50,.06)', marginBottom: 20 }
 const fieldGroup = { marginBottom: 18 }
 const label = { display: 'block', fontSize: 14, fontWeight: 700, marginBottom: 6, color: C.espresso }
+const hint = { fontSize: 12, color: C.mocha, marginTop: 2, marginBottom: 6, lineHeight: 1.4 }
 const input = { width: '100%', padding: '11px 14px', border: `1.5px solid ${C.sand}`, borderRadius: 10, fontFamily: font, fontSize: 15, background: C.white, color: C.espresso, outline: 'none', boxSizing: 'border-box' }
 const btn = { width: '100%', padding: '13px 24px', border: 'none', borderRadius: 12, background: C.espresso, color: C.cream, fontFamily: font, fontWeight: 700, fontSize: 15, cursor: 'pointer', display: 'block' }
 const errBox = { background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '12px 16px', marginTop: 14, color: '#dc2626', fontSize: 14 }
