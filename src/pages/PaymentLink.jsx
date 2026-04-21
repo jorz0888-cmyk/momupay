@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import PaymentQrOverlay from '../components/PaymentQrOverlay.jsx'
 
 const styles = {
   page: {
@@ -186,6 +187,9 @@ function PaymentLink() {
   const [copied, setCopied] = useState(false)
   const [status, setStatus] = useState('idle') // idle | sending | error
   const [errorMsg, setErrorMsg] = useState('')
+  const [issuedAmount, setIssuedAmount] = useState(0)
+  const [issuedMemo, setIssuedMemo] = useState('')
+  const [showQrFullscreen, setShowQrFullscreen] = useState(false)
 
   const handleAmountChange = (e) => {
     const val = e.target.value.replace(/[^0-9]/g, '')
@@ -212,8 +216,11 @@ function PaymentLink() {
       const data = await res.json()
       if (!data.url) throw new Error()
       setGeneratedLink(data.url)
+      setIssuedAmount(Number(amount))
+      setIssuedMemo(memo)
       setCopied(false)
       setStatus('idle')
+      setShowQrFullscreen(true)
     } catch {
       setErrorMsg('リンクの発行に失敗しました')
       setStatus('error')
@@ -308,10 +315,30 @@ function PaymentLink() {
                 </button>
               </div>
               {copied && <div style={styles.copied}>コピーしました</div>}
+              <button
+                style={{
+                  marginTop: 12, width: '100%', padding: '12px 18px',
+                  border: 'none', borderRadius: 10,
+                  background: '#2C2418', color: '#FAF6F1',
+                  fontFamily: "'Zen Maru Gothic', sans-serif",
+                  fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                }}
+                onClick={() => setShowQrFullscreen(true)}
+              >
+                QRを再表示
+              </button>
             </div>
           )}
         </div>
       </main>
+      {showQrFullscreen && generatedLink && (
+        <PaymentQrOverlay
+          url={generatedLink}
+          amount={issuedAmount}
+          memo={issuedMemo}
+          onClose={() => setShowQrFullscreen(false)}
+        />
+      )}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import PaymentQrOverlay from '../components/PaymentQrOverlay.jsx'
 
 /* ── color tokens ── */
 const C = {
@@ -95,6 +96,9 @@ function PayTab({ salonId, salonName }) {
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [issuedAmount, setIssuedAmount] = useState(0)
+  const [issuedMemo, setIssuedMemo] = useState('')
+  const [showQrFullscreen, setShowQrFullscreen] = useState(false)
 
   const generate = async () => {
     if (!amount || Number(amount) <= 0) return
@@ -107,7 +111,11 @@ function PayTab({ salonId, salonName }) {
       if (!res.ok) throw new Error()
       const data = await res.json()
       if (!data.url) throw new Error()
-      setLink(data.url); setCopied(false); setStatus('idle')
+      setLink(data.url)
+      setIssuedAmount(Number(amount))
+      setIssuedMemo(memo)
+      setCopied(false); setStatus('idle')
+      setShowQrFullscreen(true)
     } catch { setError('リンクの発行に失敗しました'); setStatus('error') }
   }
 
@@ -146,9 +154,23 @@ function PayTab({ salonId, salonName }) {
               <button style={{ ...btn, width: 'auto', background: C.terra, padding: '10px 18px', fontSize: 13 }} onClick={copy}>コピー</button>
             </div>
             {copied && <div style={{ fontSize: 12, color: C.sage, marginTop: 6, fontWeight: 700 }}>コピーしました</div>}
+            <button
+              style={{ ...btn, width: '100%', background: C.espresso, padding: '12px 18px', fontSize: 13, marginTop: 12 }}
+              onClick={() => setShowQrFullscreen(true)}
+            >
+              QRを再表示
+            </button>
           </div>
         )}
       </div>
+      {showQrFullscreen && link && (
+        <PaymentQrOverlay
+          url={link}
+          amount={issuedAmount}
+          memo={issuedMemo}
+          onClose={() => setShowQrFullscreen(false)}
+        />
+      )}
     </>
   )
 }
