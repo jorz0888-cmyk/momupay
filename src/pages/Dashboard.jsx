@@ -91,12 +91,14 @@ function HomeTab() {
 /* ── Pay ── */
 function PayTab({ salonId, salonName }) {
   const [amount, setAmount] = useState('')
+  const [customerName, setCustomerName] = useState('')
   const [memo, setMemo] = useState('')
   const [link, setLink] = useState('')
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const [issuedAmount, setIssuedAmount] = useState(0)
+  const [issuedCustomerName, setIssuedCustomerName] = useState('')
   const [issuedMemo, setIssuedMemo] = useState('')
   const [showQrFullscreen, setShowQrFullscreen] = useState(false)
 
@@ -106,13 +108,14 @@ function PayTab({ salonId, salonName }) {
     try {
       const res = await fetch('https://n8n.kikitte.com/webhook/momupay-payment-link', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Number(amount), memo, salonId, salonName }),
+        body: JSON.stringify({ amount: Number(amount), customerName, memo, salonId, salonName }),
       })
       if (!res.ok) throw new Error()
       const data = await res.json()
       if (!data.url) throw new Error()
       setLink(data.url)
       setIssuedAmount(Number(amount))
+      setIssuedCustomerName(customerName)
       setIssuedMemo(memo)
       setCopied(false); setStatus('idle')
       setShowQrFullscreen(true)
@@ -138,8 +141,12 @@ function PayTab({ salonId, salonName }) {
           </div>
         </div>
         <div style={fieldGroup}>
-          <label style={label}>メモ（任意）</label>
-          <textarea style={{ ...input, resize: 'vertical', minHeight: 70 }} placeholder="全身もみほぐし60分" value={memo} onChange={e => setMemo(e.target.value)} />
+          <label style={label}>お客様名（任意）</label>
+          <input style={input} type="text" placeholder="例：田中様、山田花子" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+        </div>
+        <div style={fieldGroup}>
+          <label style={label}>施術内容（任意）</label>
+          <input style={input} type="text" placeholder="例：全身もみほぐし60分" value={memo} onChange={e => setMemo(e.target.value)} />
         </div>
         <button style={{ ...btn, ...((!amount || Number(amount) <= 0 || status === 'sending') ? { opacity: .5, cursor: 'not-allowed' } : {}) }}
           onClick={generate} disabled={!amount || Number(amount) <= 0 || status === 'sending'}>
@@ -148,7 +155,25 @@ function PayTab({ salonId, salonName }) {
         {status === 'error' && error && <div style={errBox}>{error}</div>}
         {link && (
           <div style={{ marginTop: 20, background: C.sageL, borderRadius: 12, padding: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.sage, marginBottom: 8 }}>決済リンクが発行されました</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.sage, marginBottom: 10 }}>決済リンクが発行されました</div>
+            <div style={{ background: C.white, borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, lineHeight: 1.8 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <span style={{ color: C.mocha, width: 60, flexShrink: 0 }}>金額</span>
+                <span style={{ fontWeight: 700 }}>¥{issuedAmount.toLocaleString()}</span>
+              </div>
+              {issuedCustomerName && (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <span style={{ color: C.mocha, width: 60, flexShrink: 0 }}>お客様</span>
+                  <span>{issuedCustomerName}</span>
+                </div>
+              )}
+              {issuedMemo && (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <span style={{ color: C.mocha, width: 60, flexShrink: 0 }}>施術</span>
+                  <span>{issuedMemo}</span>
+                </div>
+              )}
+            </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <input id="d-link" readOnly value={link} style={{ ...input, flex: 1, fontSize: 13, fontFamily: fontEn }} />
               <button style={{ ...btn, width: 'auto', background: C.terra, padding: '10px 18px', fontSize: 13 }} onClick={copy}>コピー</button>
