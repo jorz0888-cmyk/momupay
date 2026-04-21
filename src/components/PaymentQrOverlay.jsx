@@ -73,12 +73,45 @@ const s = {
 function PaymentQrOverlay({ url, amount, memo, onClose }) {
   const [copied, setCopied] = useState(false)
 
+  /* Intercept browser back / swipe-back: pushState on mount so the first
+     back press pops our dummy entry instead of navigating away, then use
+     popstate to actually close. All close paths (button / ESC / back
+     button) funnel through history.back() so the history stack stays
+     clean — no dangling entry that could re-trigger the bug on the next
+     navigation. */
+  useEffect(() => {
+    window.history.pushState({ qrOverlay: true }, '')
+    const onPop = () => { onClose?.() }
+    window.addEventListener('popstate', onPop)
+    return () => {
+      window.removeEventListener('popstate', onPop)
+      // If we're being unmounted by the parent without going through our
+      // close path (edge case), pop our pushed entry so it doesn't linger.
+      if (window.history.state && window.history.state.qrOverlay) {
+        window.history.back()
+      }
+    }
+  }, [onClose])
+
+  /* Unified close handler — goes through the browser history so popstate
+     fires, which in turn calls onClose. This guarantees every close path
+     removes the pushed entry, preventing a stale history entry from
+     sending the user to the previous page on the next back press. */
+  const handleClose = () => {
+    if (typeof window !== 'undefined' && window.history.state && window.history.state.qrOverlay) {
+      window.history.back()
+    } else {
+      onClose?.()
+    }
+  }
+
   /* ESC key closes the overlay */
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose?.() }
+    const onKey = (e) => { if (e.key === 'Escape') handleClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   /* Prevent body scroll while mounted */
   useEffect(() => {
@@ -123,7 +156,7 @@ function PaymentQrOverlay({ url, amount, memo, onClose }) {
         <button style={{ ...s.btn, ...s.copyBtn }} onClick={copy}>
           {copied ? 'コピーしました' : 'URLをコピー'}
         </button>
-        <button style={{ ...s.btn, ...s.closeBtn }} onClick={onClose}>閉じる</button>
+        <button style={{ ...s.btn, ...s.closeBtn }} onClick={handleClose}>閉じる</button>
       </div>
     </div>
   )
