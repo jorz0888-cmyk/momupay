@@ -182,12 +182,14 @@ function PaymentLink() {
   const salonName = searchParams.get('salonName') || 'MomuPay加盟店'
 
   const [amount, setAmount] = useState('')
+  const [customerName, setCustomerName] = useState('')
   const [memo, setMemo] = useState('')
   const [generatedLink, setGeneratedLink] = useState('')
   const [copied, setCopied] = useState(false)
   const [status, setStatus] = useState('idle') // idle | sending | error
   const [errorMsg, setErrorMsg] = useState('')
   const [issuedAmount, setIssuedAmount] = useState(0)
+  const [issuedCustomerName, setIssuedCustomerName] = useState('')
   const [issuedMemo, setIssuedMemo] = useState('')
   const [showQrFullscreen, setShowQrFullscreen] = useState(false)
 
@@ -207,6 +209,7 @@ function PaymentLink() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: Number(amount),
+          customerName,
           memo,
           salonId,
           salonName,
@@ -217,6 +220,7 @@ function PaymentLink() {
       if (!data.url) throw new Error()
       setGeneratedLink(data.url)
       setIssuedAmount(Number(amount))
+      setIssuedCustomerName(customerName)
       setIssuedMemo(memo)
       setCopied(false)
       setStatus('idle')
@@ -273,12 +277,24 @@ function PaymentLink() {
           </div>
 
           <div style={styles.fieldGroup}>
-            <label style={styles.label}>メモ（任意）</label>
-            <textarea
-              placeholder="全身もみほぐし60分"
+            <label style={styles.label}>お客様名（任意）</label>
+            <input
+              type="text"
+              placeholder="例：田中様、山田花子"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              style={styles.input}
+            />
+          </div>
+
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>施術内容（任意）</label>
+            <input
+              type="text"
+              placeholder="例：全身もみほぐし60分"
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              style={styles.textarea}
+              style={styles.input}
             />
           </div>
 
@@ -302,6 +318,24 @@ function PaymentLink() {
           {generatedLink && (
             <div style={styles.resultBox}>
               <div style={styles.resultLabel}>決済リンクが発行されました</div>
+              <div style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, lineHeight: 1.8 }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <span style={{ color: '#8B7355', width: 60, flexShrink: 0 }}>金額</span>
+                  <span style={{ fontWeight: 700 }}>¥{issuedAmount.toLocaleString()}</span>
+                </div>
+                {issuedCustomerName && (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <span style={{ color: '#8B7355', width: 60, flexShrink: 0 }}>お客様</span>
+                    <span>{issuedCustomerName}</span>
+                  </div>
+                )}
+                {issuedMemo && (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <span style={{ color: '#8B7355', width: 60, flexShrink: 0 }}>施術</span>
+                    <span>{issuedMemo}</span>
+                  </div>
+                )}
+              </div>
               <div style={styles.linkRow}>
                 <input
                   id="link-url"
