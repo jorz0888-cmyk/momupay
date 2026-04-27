@@ -12,22 +12,6 @@ const font = "'Zen Maru Gothic', sans-serif"
 const fontEn = "'DM Sans', sans-serif"
 
 /* ── mock data ── */
-const MOCK_RESERVATIONS = [
-  { id: 1, date: '2026-04-12 10:00', customer: '田中 花子', menu: '全身もみほぐし 60分', amount: 6000, status: '確定' },
-  { id: 2, date: '2026-04-12 13:00', customer: '佐藤 太郎', menu: 'アロマオイル 90分', amount: 9000, status: '確定' },
-  { id: 3, date: '2026-04-13 11:00', customer: '鈴木 美咲', menu: 'ヘッドスパ 30分', amount: 3500, status: '仮予約' },
-  { id: 4, date: '2026-04-13 15:00', customer: '山田 健太', menu: '全身もみほぐし 90分', amount: 8500, status: '確定' },
-  { id: 5, date: '2026-04-14 10:00', customer: '高橋 愛', menu: 'フットケア 45分', amount: 4500, status: 'キャンセル' },
-]
-
-const MOCK_CUSTOMERS = [
-  { id: 1, name: '田中 花子', email: 'hanako@example.com', visits: 12, lastVisit: '2026-04-12' },
-  { id: 2, name: '佐藤 太郎', email: 'taro@example.com', visits: 8, lastVisit: '2026-04-12' },
-  { id: 3, name: '鈴木 美咲', email: 'misaki@example.com', visits: 5, lastVisit: '2026-04-06' },
-  { id: 4, name: '山田 健太', email: 'kenta@example.com', visits: 3, lastVisit: '2026-04-01' },
-  { id: 5, name: '高橋 愛', email: 'ai@example.com', visits: 15, lastVisit: '2026-04-10' },
-]
-
 const MOCK_DAILY_SALES = [
   { day: '4/1', amount: 18000 }, { day: '4/2', amount: 24000 }, { day: '4/3', amount: 12000 },
   { day: '4/4', amount: 31000 }, { day: '4/5', amount: 27000 }, { day: '4/6', amount: 9000 },
@@ -35,21 +19,10 @@ const MOCK_DAILY_SALES = [
   { day: '4/10', amount: 19000 }, { day: '4/11', amount: 28000 }, { day: '4/12', amount: 15000 },
 ]
 
-const MOCK_MENUS = [
-  { id: 1, name: '全身もみほぐし 60分', duration: 60, price: 6000 },
-  { id: 2, name: '全身もみほぐし 90分', duration: 90, price: 8500 },
-  { id: 3, name: 'アロマオイル 90分', duration: 90, price: 9000 },
-  { id: 4, name: 'ヘッドスパ 30分', duration: 30, price: 3500 },
-  { id: 5, name: 'フットケア 45分', duration: 45, price: 4500 },
-]
-
 const TABS = [
   { key: 'home', label: 'ダッシュボード', icon: '📊' },
   { key: 'pay', label: '決済リンク発行', icon: '🔗' },
-  { key: 'reservations', label: '予約一覧', icon: '📅' },
-  { key: 'customers', label: '顧客管理', icon: '👥' },
   { key: 'sales', label: '売上管理', icon: '💰' },
-  { key: 'menus', label: 'メニュー管理', icon: '📋' },
   { key: 'settings', label: '設定', icon: '⚙️' },
 ]
 
@@ -62,7 +35,6 @@ function HomeTab() {
   const cards = [
     { label: '今月の売上', value: '¥240,000', sub: '前月比 +12%', color: C.terra },
     { label: '決済件数', value: '38件', sub: '前月比 +5件', color: C.sage },
-    { label: '新規顧客数', value: '7人', sub: '前月比 +2人', color: C.gold },
   ]
   return (
     <>
@@ -75,14 +47,6 @@ function HomeTab() {
             <div style={{ fontSize: 12, color: C.sage, marginTop: 6 }}>{c.sub}</div>
           </div>
         ))}
-      </div>
-
-      <div style={{ background: C.white, borderRadius: 16, padding: 24, boxShadow: '0 2px 12px rgba(92,74,50,.06)' }}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>直近の予約</h3>
-        <Table
-          cols={['日時', '顧客名', 'メニュー', '金額', 'ステータス']}
-          rows={MOCK_RESERVATIONS.slice(0, 3).map(r => [r.date, r.customer, r.menu, `¥${r.amount.toLocaleString()}`, <Badge key={r.id} s={r.status} />])}
-        />
       </div>
     </>
   )
@@ -334,36 +298,6 @@ function SalesHistorySection({ salonId }) {
 const salesTh = { textAlign: 'left', padding: '12px 14px', fontSize: 12, color: C.mocha, fontWeight: 700, borderBottom: `1px solid ${C.sand}`, whiteSpace: 'nowrap' }
 const salesTd = { padding: '10px 14px', borderBottom: `1px solid ${C.sand}`, color: C.espresso, verticalAlign: 'middle' }
 
-/* ── Reservations ── */
-function ReservationsTab() {
-  return (
-    <>
-      <h2 style={h2}>予約一覧</h2>
-      <div style={{ ...card, overflowX: 'auto' }}>
-        <Table
-          cols={['日時', '顧客名', 'メニュー', '金額', 'ステータス']}
-          rows={MOCK_RESERVATIONS.map(r => [r.date, r.customer, r.menu, `¥${r.amount.toLocaleString()}`, <Badge key={r.id} s={r.status} />])}
-        />
-      </div>
-    </>
-  )
-}
-
-/* ── Customers ── */
-function CustomersTab() {
-  return (
-    <>
-      <h2 style={h2}>顧客管理</h2>
-      <div style={{ ...card, overflowX: 'auto' }}>
-        <Table
-          cols={['名前', 'メール', '来店回数', '最終来店日']}
-          rows={MOCK_CUSTOMERS.map(c => [c.name, c.email, `${c.visits}回`, c.lastVisit])}
-        />
-      </div>
-    </>
-  )
-}
-
 /* ── Sales ── */
 function SalesTab() {
   const max = Math.max(...MOCK_DAILY_SALES.map(d => d.amount))
@@ -397,24 +331,6 @@ function SalesTab() {
   )
 }
 
-/* ── Menus ── */
-function MenusTab() {
-  return (
-    <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-        <h2 style={{ ...h2, marginBottom: 0 }}>メニュー管理</h2>
-        <button style={{ ...btn, width: 'auto', padding: '10px 24px', fontSize: 14 }}>+ メニューを追加</button>
-      </div>
-      <div style={{ ...card, overflowX: 'auto' }}>
-        <Table
-          cols={['メニュー名', '時間', '金額']}
-          rows={MOCK_MENUS.map(m => [m.name, `${m.duration}分`, `¥${m.price.toLocaleString()}`])}
-        />
-      </div>
-    </>
-  )
-}
-
 /* ── Settings ── */
 function SettingsTab() {
   return (
@@ -427,33 +343,6 @@ function SettingsTab() {
         <button style={{ ...btn, marginTop: 8 }}>保存する</button>
       </div>
     </>
-  )
-}
-
-/* ══════════════════════════════════════════
-   Shared UI
-   ══════════════════════════════════════════ */
-
-function Badge({ s }) {
-  const colors = { '確定': { bg: C.sageL, color: C.sage }, '仮予約': { bg: '#FEF9E7', color: C.gold }, 'キャンセル': { bg: '#fef2f2', color: '#dc2626' } }
-  const c = colors[s] || { bg: C.sand, color: C.mocha }
-  return <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 100, fontSize: 12, fontWeight: 700, background: c.bg, color: c.color }}>{s}</span>
-}
-
-function Table({ cols, rows }) {
-  return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-      <thead>
-        <tr>{cols.map((c, i) => <th key={i} style={{ textAlign: 'left', padding: '10px 12px', borderBottom: `2px solid ${C.sand}`, fontSize: 12, color: C.mocha, fontWeight: 700, whiteSpace: 'nowrap' }}>{c}</th>)}</tr>
-      </thead>
-      <tbody>
-        {rows.map((row, ri) => (
-          <tr key={ri} style={{ background: ri % 2 === 0 ? C.white : C.cream }}>
-            {row.map((cell, ci) => <td key={ci} style={{ padding: '10px 12px', borderBottom: `1px solid ${C.sand}`, whiteSpace: 'nowrap' }}>{cell}</td>)}
-          </tr>
-        ))}
-      </tbody>
-    </table>
   )
 }
 
@@ -480,8 +369,8 @@ function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const content = {
-    home: <HomeTab />, pay: <PayTab salonId={salonId} salonName={salonName} />, reservations: <ReservationsTab />,
-    customers: <CustomersTab />, sales: <SalesTab />, menus: <MenusTab />, settings: <SettingsTab />,
+    home: <HomeTab />, pay: <PayTab salonId={salonId} salonName={salonName} />,
+    sales: <SalesTab />, settings: <SettingsTab />,
   }
 
   return (
