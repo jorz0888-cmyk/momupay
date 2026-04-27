@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import PaymentQrOverlay from '../components/PaymentQrOverlay.jsx'
 
@@ -198,9 +198,141 @@ function PayTab({ salonId, salonName }) {
           onClose={() => setShowQrFullscreen(false)}
         />
       )}
+
+      <SalesHistorySection salonId={salonId} />
     </>
   )
 }
+
+/* ── Sales history (last 20 charges from n8n) ── */
+function cleanField(s) {
+  if (s == null) return null
+  let v = String(s).trim()
+  if (!v) return null
+  if (v.startsWith('=')) v = v.slice(1).trim()
+  return v || null
+}
+
+function StatusBadge({ status }) {
+  if (status === 'succeeded') {
+    return <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700, background: C.sageL, color: C.sage, whiteSpace: 'nowrap' }}>✅ 成功</span>
+  }
+  if (status === 'failed') {
+    return <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700, background: '#fef2f2', color: '#dc2626', whiteSpace: 'nowrap' }}>❌ 失敗</span>
+  }
+  return <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700, background: C.sand, color: C.mocha, whiteSpace: 'nowrap' }}>{status || '—'}</span>
+}
+
+function SalesHistorySection({ salonId }) {
+  const [charges, setCharges] = useState([])
+  const [count, setCount] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [hasFetched, setHasFetched] = useState(false)
+
+  const fetchCharges = async () => {
+    if (!salonId) return
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('https://n8n.kikitte.com/webhook/momupay-get-charges', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ salonId, limit: 20 }),
+      })
+      if (!res.ok) throw new Error('取得に失敗しました')
+      const data = await res.json()
+      setCharges(data.charges || [])
+      setCount(data.count ?? (data.charges || []).length)
+    } catch (e) {
+      setError(e.message || '取得に失敗しました')
+    } finally {
+      setLoading(false)
+      setHasFetched(true)
+    }
+  }
+
+  useEffect(() => {
+    if (!salonId) return
+    fetchCharges()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salonId])
+
+  return (
+    <div style={{ marginTop: 28 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+          <h2 style={{ ...h2, marginBottom: 0 }}>売上履歴</h2>
+          {hasFetched && !error && (
+            <span style={{ fontSize: 12, color: C.mocha, background: C.sand, padding: '2px 10px', borderRadius: 100, fontFamily: fontEn }}>
+              直近{count}件
+            </span>
+          )}
+        </div>
+        <button
+          onClick={fetchCharges}
+          disabled={loading || !salonId}
+          style={{ background: 'transparent', border: `1.5px solid ${C.sand}`, borderRadius: 10, padding: '7px 14px', fontFamily: font, fontSize: 13, fontWeight: 700, color: C.bark, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.5 : 1 }}
+        >
+          {loading ? '更新中...' : '🔄 更新'}
+        </button>
+      </div>
+
+      {!salonId ? (
+        <div style={{ ...card, color: C.mocha, fontSize: 13 }}>サロンIDが設定されていないため履歴を表示できません。</div>
+      ) : loading && !hasFetched ? (
+        <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>読み込み中...</div>
+      ) : error ? (
+        <div style={{ ...card }}>
+          <div style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{error}</div>
+          <button
+            onClick={fetchCharges}
+            style={{ ...btn, width: 'auto', padding: '10px 20px', fontSize: 13, background: C.terra }}
+          >
+            再試行
+          </button>
+        </div>
+      ) : charges.length === 0 ? (
+        <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>まだ決済履歴がありません</div>
+      ) : (
+        <div style={{ ...card, padding: 0, overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: C.cream }}>
+                <th style={salesTh}>日時</th>
+                <th style={{ ...salesTh, textAlign: 'right' }}>金額</th>
+                <th style={salesTh}>お客様名</th>
+                <th style={salesTh}>施術内容</th>
+                <th style={salesTh}>ステータス</th>
+                <th style={salesTh}>決済コード</th>
+              </tr>
+            </thead>
+            <tbody>
+              {charges.map((c, i) => {
+                const customerName = cleanField(c.customer_name)
+                const memo = cleanField(c.memo)
+                return (
+                  <tr key={c.payment_intent_id || c.payment_code || i}
+                    style={{ background: i % 2 === 0 ? C.white : C.cream, height: 48 }}>
+                    <td style={{ ...salesTd, whiteSpace: 'nowrap', fontFamily: fontEn, fontSize: 12, color: C.bark }}>{c.created_jst || '—'}</td>
+                    <td style={{ ...salesTd, textAlign: 'right', whiteSpace: 'nowrap', fontFamily: fontEn, fontWeight: 700 }}>¥{Number(c.amount || 0).toLocaleString()}</td>
+                    <td style={{ ...salesTd, whiteSpace: 'nowrap' }}>{customerName || '—'}</td>
+                    <td style={{ ...salesTd }}>{memo || '—'}</td>
+                    <td style={{ ...salesTd, whiteSpace: 'nowrap' }}><StatusBadge status={c.status} /></td>
+                    <td style={{ ...salesTd, whiteSpace: 'nowrap', fontFamily: fontEn, fontSize: 12, color: C.mocha }}>{c.payment_code || '—'}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const salesTh = { textAlign: 'left', padding: '12px 14px', fontSize: 12, color: C.mocha, fontWeight: 700, borderBottom: `1px solid ${C.sand}`, whiteSpace: 'nowrap' }
+const salesTd = { padding: '10px 14px', borderBottom: `1px solid ${C.sand}`, color: C.espresso, verticalAlign: 'middle' }
 
 /* ── Reservations ── */
 function ReservationsTab() {
