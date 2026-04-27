@@ -98,7 +98,7 @@ function Booking() {
       <div style={main}>
         {/* Stepper */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 28 }}>
-          {['メニュー', '日時', 'お客様情報', '確認・決済'].map((l, i) => {
+          {['メニュー', '日時', 'お客様情報', '確認・お会計'].map((l, i) => {
             const num = i + 1; const active = num === step; const done = num < step
             return (
               <div key={num} style={{ display: 'flex', alignItems: 'center' }}>
@@ -255,13 +255,13 @@ function Booking() {
               disabled={status === 'sending'}
               onClick={handleSubmit}
             >
-              {status === 'sending' ? '処理中...' : 'カードで事前決済して予約を確定する'}
+              {status === 'sending' ? '処理中...' : 'カードで事前にお支払いして予約を確定する'}
             </button>
 
             <button style={{ ...btnSecondary, marginTop: 10 }} onClick={back} disabled={status === 'sending'}>戻る</button>
 
             <div style={{ textAlign: 'center', marginTop: 16, fontSize: 11, color: C.mocha }}>
-              決済はStripeの安全な環境で処理されます
+              お会計はStripeの安全な環境で処理されます
             </div>
           </div>
         )}

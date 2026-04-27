@@ -263,7 +263,7 @@ function PaymentLink() {
 
       <main style={styles.main}>
         <div style={styles.card}>
-          <h1 style={styles.title}>決済リンク発行</h1>
+          <h1 style={styles.title}>お会計リンクを発行する</h1>
           <p style={styles.salonName}>{salonName}</p>
 
           <div style={styles.fieldGroup}>
@@ -315,7 +315,7 @@ function PaymentLink() {
             onClick={handleGenerate}
             disabled={!amount || Number(amount) <= 0 || status === 'sending'}
           >
-            {status === 'sending' ? '発行中...' : '決済リンクを発行する'}
+            {status === 'sending' ? '発行中...' : 'お会計リンクを発行する'}
           </button>
 
           {status === 'error' && errorMsg && (
@@ -326,7 +326,7 @@ function PaymentLink() {
 
           {generatedLink && (
             <div style={styles.resultBox}>
-              <div style={styles.resultLabel}>決済リンクが発行されました</div>
+              <div style={styles.resultLabel}>お会計リンクを発行しました</div>
               <div style={{ background: '#fff', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, lineHeight: 1.8 }}>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <span style={{ color: '#8B7355', width: 60, flexShrink: 0 }}>金額</span>

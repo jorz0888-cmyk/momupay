@@ -110,10 +110,10 @@ function App() {
         <div className="hero__content">
           <div className="hero__badge">Relaxation Salon Platform</div>
           <h1>
-            予約も決済も、<br />
+            予約もお会計も、<br />
             <span className="hero__em">もむっと</span>かんたん。
           </h1>
-          <p>リラクゼーションサロン専用の予約管理・決済代行プラットフォーム。<br className="hide-sp" />面倒な決済導入をまるごとお任せ、施術に集中できます。</p>
+          <p>リラクゼーションサロン専用の予約・お会計プラットフォーム。<br className="hide-sp" />面倒なお会計の導入をまるごとお任せ、施術に集中できます。</p>
           <div className="hero__btns">
             <button className="btn btn--white" onClick={() => scrollTo('contact')}>無料で相談する</button>
             <button className="btn btn--glass" onClick={() => scrollTo('about')}>詳しく見る ↓</button>
@@ -131,8 +131,8 @@ function App() {
             <div className="about__text">
               <span className="tag">About MomuPay</span>
               <h2>サロン経営を、<br />もっとシンプルに。</h2>
-              <p>MomuPayは、リラクゼーションサロンのオーナー様が予約受付からオンライン決済まで、ひとつのプラットフォームで完結できるサービスです。</p>
-              <p>初期費用・月額費用は一切不要。お客様がオンラインで予約・事前決済できるので、当日の会計がスムーズになり、無断キャンセルも大幅に減少します。</p>
+              <p>MomuPayは、リラクゼーションサロンのオーナー様が予約受付からオンラインのお会計まで、ひとつのプラットフォームで完結できるサービスです。</p>
+              <p>初期費用・月額費用は一切不要。お客様がオンラインで予約・事前にお会計を済ませられるので、当日の会計がスムーズになり、無断キャンセルも大幅に減少します。</p>
               <div className="about__stats">
                 <div className="stat">
                   <span className="stat__num">0<small>円</small></span>
@@ -178,8 +178,8 @@ function App() {
             <div className="feat-card">
               <div className="feat-card__body">
                 <div className="feat-card__icon">💳</div>
-                <h3>かんたん決済導入</h3>
-                <p>Visa / Mastercard / Amex / JCB対応。PCI DSS準拠の安全な決済基盤で、お客様のカード情報を安全に処理します。</p>
+                <h3>かんたんお会計導入</h3>
+                <p>Visa / Mastercard / Amex / JCB対応。PCI DSS準拠の安全な基盤で、お客様のカード情報を安全に処理します。</p>
               </div>
             </div>
           </div>
@@ -189,7 +189,7 @@ function App() {
               <div className="feat-card__body">
                 <div className="feat-card__icon">🚫</div>
                 <h3>ノーショー対策</h3>
-                <p>事前決済で無断キャンセルを大幅削減。キャンセルポリシーもサロンごとに柔軟に設定できます。</p>
+                <p>事前のお会計で無断キャンセルを大幅削減。キャンセルポリシーもサロンごとに柔軟に設定できます。</p>
               </div>
             </div>
             <div className="feat-card feat-card--wide">
@@ -205,7 +205,7 @@ function App() {
           </div>
 
           <div className="feat-row feat-row--trio">
-            <div className="feat-mini"><span>📱</span><h4>スマホ完結</h4><p>予約・決済・管理すべてスマホで</p></div>
+            <div className="feat-mini"><span>📱</span><h4>スマホ完結</h4><p>予約・お会計・管理すべてスマホで</p></div>
             <div className="feat-mini"><span>🔒</span><h4>安心セキュリティ</h4><p>国際基準PCI DSS準拠</p></div>
             <div className="feat-mini"><span>⚡</span><h4>即日振込対応</h4><p>最短翌営業日に売上入金</p></div>
           </div>
@@ -239,7 +239,7 @@ function App() {
               {[
                 ['01','メニューを選択','お好みの施術メニューを選びます。'],
                 ['02','日時を予約','空き状況をリアルタイムで確認・選択。'],
-                ['03','オンライン決済','クレジットカードで事前にお支払い。'],
+                ['03','オンラインでお会計','クレジットカードで事前にお支払い。'],
                 ['04','サロンでリラックス','会計不要。施術をお楽しみください。'],
               ].map(([n,t,d]) => (
                 <div className="track__step" key={n}>
@@ -352,7 +352,7 @@ function App() {
             <span className="logo-mark logo-mark--light">M</span>
             <span className="logo-text" style={{ color: '#FAF6F1' }}>Momu<span className="logo-accent">Pay</span></span>
           </div>
-          <p className="footer__desc">リラクゼーションサロン向け 予約管理・決済代行プラットフォーム</p>
+          <p className="footer__desc">リラクゼーションサロン向け 予約・お会計プラットフォーム</p>
           <div className="footer__links">
             <span onClick={() => navigate('/legal#tokusho')}>特定商取引法に基づく表記</span>
             <span onClick={() => navigate('/legal#privacy')}>プライバシーポリシー</span>
@@ -375,12 +375,12 @@ function App() {
               <div className="modal__price">
                 <span className="modal__num">7.9</span>
                 <span className="modal__pct">%</span>
-                <span className="modal__per">/ 決済ごと</span>
+                <span className="modal__per">/ お会計ごと</span>
               </div>
               <ul>
                 <li>✓ 初期費用 無料</li>
                 <li>✓ 月額費用 無料</li>
-                <li>✓ オンライン決済（Visa / Mastercard / Amex / JCB）</li>
+                <li>✓ オンラインのお会計（Visa / Mastercard / Amex / JCB）</li>
                 <li>✓ 予約管理機能</li>
                 <li>✓ 売上レポート・分析</li>
                 <li>✓ ノーショー対策機能</li>

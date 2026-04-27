@@ -136,7 +136,7 @@ function PaymentQrOverlay({ url, amount, memo, onClose }) {
   const qrSize = Math.min(260, typeof window !== 'undefined' ? Math.max(180, window.innerWidth - 120) : 260)
 
   return (
-    <div style={s.overlay} role="dialog" aria-modal="true" aria-label="決済QRコード">
+    <div style={s.overlay} role="dialog" aria-modal="true" aria-label="お会計QRコード">
       <div style={s.header}>
         <div style={s.logoMark}>M</div>
         <span style={s.logoText}>Momu<span style={{ color: C.terra }}>Pay</span></span>

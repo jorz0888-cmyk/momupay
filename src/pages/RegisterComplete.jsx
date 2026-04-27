@@ -35,8 +35,8 @@ function RegisterComplete() {
           <div style={s.icon}>✓</div>
           <h1 style={s.title}>Stripe設定が完了しました！</h1>
           <p style={s.desc}>
-            決済アカウントの設定が完了しました。<br />
-            これでMomuPayで決済リンクの発行やご予約の受付を<br />
+            お会計アカウントの設定が完了しました。<br />
+            これでMomuPayでお会計リンクの発行やご予約の受付を<br />
             開始できます。
           </p>
           <Link to={dashboardHref} style={s.btn}>ダッシュボードを開く</Link>

@@ -254,7 +254,7 @@ function Register() {
           ) : (
             <>
               <h1 style={s.title}>無料でサロン登録</h1>
-              <p style={s.sub}>初期費用・月額費用なし。登録後すぐにオンライン決済が使えます。</p>
+              <p style={s.sub}>初期費用・月額費用なし。登録後すぐにオンラインのお会計が使えます。</p>
 
               {status === 'error' && errorMsg && <div style={s.error}>{errorMsg}</div>}
 

@@ -13,8 +13,8 @@ const fontEn = "'DM Sans', sans-serif"
 
 const TABS = [
   { key: 'home', label: 'ダッシュボード', icon: '📊' },
-  { key: 'pay', label: '決済リンク発行', icon: '🔗' },
-  { key: 'sales', label: '売上管理', icon: '💰' },
+  { key: 'pay', label: 'お会計リンク', icon: '🔗' },
+  { key: 'sales', label: '売上の動き', icon: '💰' },
   { key: 'settings', label: '設定', icon: '⚙️' },
 ]
 
@@ -138,7 +138,7 @@ function HomeTab({ salonId, onSeeAll }) {
   }
 
   /* Next payout sub-line for the balance card */
-  let payoutSub = '次回入金: 未定'
+  let payoutSub = '次回入金は調整中です'
   if (balance && balance.next_payout_date) {
     const d = formatJpDate(balance.next_payout_date)
     const amt = balance.next_payout_amount != null
@@ -149,7 +149,10 @@ function HomeTab({ salonId, onSeeAll }) {
 
   return (
     <>
-      <h2 style={h2}>ダッシュボード</h2>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ ...h2, marginBottom: 4 }}>サロンとお客様を、もっと軽やかに。</h2>
+        <p style={{ fontSize: 13, color: C.mocha, lineHeight: 1.7 }}>今日のお会計と、これからの動きをここに。</p>
+      </div>
 
       {!salonId ? (
         <div style={{ ...card }}>サロンIDが設定されていないため、ダッシュボード情報を表示できません。</div>
@@ -180,7 +183,7 @@ function HomeTab({ salonId, onSeeAll }) {
                   color={C.terra}
                 />
                 <KpiCard
-                  label="今月の決済件数"
+                  label="今月のお会計件数"
                   value={`${summary.thisMonthCount}件`}
                   sub={summary.lastMonthCount > 0 ? `前月: ${summary.lastMonthCount}件` : null}
                   color={C.sage}
@@ -196,13 +199,13 @@ function HomeTab({ salonId, onSeeAll }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 900 }}>直近の決済</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 900 }}>最近のお会計</h3>
             {onSeeAll && (
               <button
                 onClick={onSeeAll}
                 style={{ background: 'transparent', border: 'none', color: C.terra, fontFamily: font, fontWeight: 700, fontSize: 13, cursor: 'pointer', padding: 0 }}
               >
-                すべて見る →
+                すべて見る
               </button>
             )}
           </div>
@@ -210,7 +213,7 @@ function HomeTab({ salonId, onSeeAll }) {
           {loading && !hasFetched ? (
             <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>読み込み中...</div>
           ) : recent.length === 0 ? (
-            <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>まだ決済データがありません</div>
+            <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>まだお会計はありません</div>
           ) : (
             <div style={{ ...card, padding: 0, overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -221,7 +224,7 @@ function HomeTab({ salonId, onSeeAll }) {
                     <th style={salesTh}>お客様名</th>
                     <th style={salesTh}>施術内容</th>
                     <th style={salesTh}>ステータス</th>
-                    <th style={salesTh}>決済コード</th>
+                    <th style={salesTh}>お会計コード</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -291,7 +294,7 @@ function PayTab({ salonId, salonName }) {
 
   return (
     <>
-      <h2 style={h2}>決済リンク発行</h2>
+      <h2 style={h2}>お会計リンクを発行する</h2>
       <div style={card}>
         <div style={fieldGroup}>
           <label style={label}>金額 <span style={{ color: C.terra, fontSize: 12 }}>*</span></label>
@@ -314,12 +317,12 @@ function PayTab({ salonId, salonName }) {
         </div>
         <button style={{ ...btn, ...((!amount || Number(amount) <= 0 || status === 'sending') ? { opacity: .5, cursor: 'not-allowed' } : {}) }}
           onClick={generate} disabled={!amount || Number(amount) <= 0 || status === 'sending'}>
-          {status === 'sending' ? '発行中...' : '決済リンクを発行する'}
+          {status === 'sending' ? '発行中...' : 'お会計リンクを発行する'}
         </button>
         {status === 'error' && error && <div style={errBox}>{error}</div>}
         {link && (
           <div style={{ marginTop: 20, background: C.sageL, borderRadius: 12, padding: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.sage, marginBottom: 10 }}>決済リンクが発行されました</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.sage, marginBottom: 10 }}>お会計リンクを発行しました</div>
             <div style={{ background: C.white, borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, lineHeight: 1.8 }}>
               <div style={{ display: 'flex', gap: 8 }}>
                 <span style={{ color: C.mocha, width: 60, flexShrink: 0 }}>金額</span>
@@ -424,7 +427,7 @@ function SalesHistorySection({ salonId }) {
     <div style={{ marginTop: 28 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-          <h2 style={{ ...h2, marginBottom: 0 }}>売上履歴</h2>
+          <h2 style={{ ...h2, marginBottom: 0 }}>お会計の履歴</h2>
           {hasFetched && !error && (
             <span style={{ fontSize: 12, color: C.mocha, background: C.sand, padding: '2px 10px', borderRadius: 100, fontFamily: fontEn }}>
               直近{count}件
@@ -455,7 +458,7 @@ function SalesHistorySection({ salonId }) {
           </button>
         </div>
       ) : charges.length === 0 ? (
-        <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>まだ決済履歴がありません</div>
+        <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>まだお会計はありません</div>
       ) : (
         <div style={{ ...card, padding: 0, overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -466,7 +469,7 @@ function SalesHistorySection({ salonId }) {
                 <th style={salesTh}>お客様名</th>
                 <th style={salesTh}>施術内容</th>
                 <th style={salesTh}>ステータス</th>
-                <th style={salesTh}>決済コード</th>
+                <th style={salesTh}>お会計コード</th>
               </tr>
             </thead>
             <tbody>
@@ -587,7 +590,10 @@ function SalesTab({ salonId }) {
 
   return (
     <>
-      <h2 style={h2}>売上管理</h2>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ ...h2, marginBottom: 4 }}>売上の動きを見る</h2>
+        <p style={{ fontSize: 13, color: C.mocha, lineHeight: 1.7 }}>日々の積み重ねを、グラフで。</p>
+      </div>
 
       {!salonId ? (
         <div style={{ ...card }}>サロンIDが設定されていないため、売上情報を表示できません。</div>
@@ -623,11 +629,11 @@ function SalesTab({ salonId }) {
           </div>
 
           <div style={card}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>日別売上（直近30日）</h3>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>この30日のお会計</h3>
             {loading && !hasFetched ? (
               <ChartSkeleton days={30} />
             ) : charges.length === 0 ? (
-              <div style={{ color: C.mocha, fontSize: 14, textAlign: 'center', padding: '40px 0' }}>まだ売上データがありません</div>
+              <div style={{ color: C.mocha, fontSize: 14, textAlign: 'center', padding: '40px 0' }}>これからのお会計を、ここで見守ります</div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 180, minWidth: daily.length * 28 }}>
@@ -706,9 +712,12 @@ function Dashboard() {
         display: 'flex', flexDirection: 'column', transition: 'transform .3s',
         transform: typeof window !== 'undefined' && window.innerWidth <= 768 && !sidebarOpen ? 'translateX(-100%)' : 'translateX(0)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 20px', marginBottom: 32 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: C.terra, color: C.cream, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 600 }}>M</div>
-          <span style={{ fontFamily: fontEn, fontWeight: 700, fontSize: 18 }}>Momu<span style={{ color: C.terra }}>Pay</span></span>
+        <div style={{ padding: '0 20px', marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: C.terra, color: C.cream, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 600 }}>M</div>
+            <span style={{ fontFamily: fontEn, fontWeight: 700, fontSize: 18 }}>Momu<span style={{ color: C.terra }}>Pay</span></span>
+          </div>
+          <div style={{ marginTop: 6, fontSize: 11, color: C.mocha, lineHeight: 1.5 }}>サロンのためのお会計プラットフォーム</div>
         </div>
         <nav style={{ flex: 1 }}>
           {TABS.map(t => (
