@@ -11,14 +11,6 @@ const C = {
 const font = "'Zen Maru Gothic', sans-serif"
 const fontEn = "'DM Sans', sans-serif"
 
-/* ── mock data ── */
-const MOCK_DAILY_SALES = [
-  { day: '4/1', amount: 18000 }, { day: '4/2', amount: 24000 }, { day: '4/3', amount: 12000 },
-  { day: '4/4', amount: 31000 }, { day: '4/5', amount: 27000 }, { day: '4/6', amount: 9000 },
-  { day: '4/7', amount: 0 }, { day: '4/8', amount: 22000 }, { day: '4/9', amount: 35000 },
-  { day: '4/10', amount: 19000 }, { day: '4/11', amount: 28000 }, { day: '4/12', amount: 15000 },
-]
-
 const TABS = [
   { key: 'home', label: 'ダッシュボード', icon: '📊' },
   { key: 'pay', label: '決済リンク発行', icon: '🔗' },
@@ -505,34 +497,158 @@ const salesTh = { textAlign: 'left', padding: '12px 14px', fontSize: 12, color: 
 const salesTd = { padding: '10px 14px', borderBottom: `1px solid ${C.sand}`, color: C.espresso, verticalAlign: 'middle' }
 
 /* ── Sales ── */
-function SalesTab() {
-  const max = Math.max(...MOCK_DAILY_SALES.map(d => d.amount))
-  const total = MOCK_DAILY_SALES.reduce((s, d) => s + d.amount, 0)
+
+/** Roll up succeeded charges into the last `days` calendar days (operator-
+ *  local timezone). Output preserves day order from oldest → today and
+ *  fills zero-revenue days with `amount: 0` so the chart renders an
+ *  unbroken axis.
+ */
+function calcDailySales(charges, days = 30) {
+  const buckets = new Map()
+  const now = new Date()
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const dayMs = 24 * 60 * 60 * 1000
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(startOfToday.getTime() - i * dayMs)
+    const key = `${d.getMonth() + 1}/${d.getDate()}`
+    buckets.set(key, 0)
+  }
+
+  charges.forEach(c => {
+    if (c.status !== 'succeeded') return
+    const d = new Date((Number(c.created) || 0) * 1000)
+    const dStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+    const dayDiff = Math.floor((startOfToday.getTime() - dStart.getTime()) / dayMs)
+    if (dayDiff < 0 || dayDiff >= days) return
+    const key = `${d.getMonth() + 1}/${d.getDate()}`
+    if (buckets.has(key)) buckets.set(key, buckets.get(key) + Number(c.amount || 0))
+  })
+
+  return Array.from(buckets, ([date, amount]) => ({ date, amount }))
+}
+
+function ChartSkeleton({ days = 30 }) {
+  const heights = Array.from({ length: days }, (_, i) => 30 + ((i * 37) % 100))
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 180, minWidth: days * 28 }}>
+        {heights.map((h, i) => (
+          <div key={i} style={{ flex: 1, minWidth: 22, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 10, height: 12 }} />
+            <div style={{ width: '100%', maxWidth: 32, background: C.sand, borderRadius: '4px 4px 0 0', height: h, opacity: 0.6 }} />
+            <div style={{ fontSize: 10, height: 12 }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SalesTab({ salonId }) {
+  const [charges, setCharges] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [hasFetched, setHasFetched] = useState(false)
+
+  const fetchCharges = async () => {
+    if (!salonId) return
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('https://n8n.kikitte.com/webhook/momupay-get-charges', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ salonId, limit: 100 }),
+      })
+      if (!res.ok) throw new Error('取得に失敗しました')
+      const data = await res.json()
+      setCharges(data.charges || [])
+    } catch (e) {
+      setError(e.message || '取得に失敗しました')
+    } finally {
+      setLoading(false)
+      setHasFetched(true)
+    }
+  }
+
+  useEffect(() => {
+    if (!salonId) return
+    fetchCharges()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salonId])
+
+  const summary = calcMonthlySummary(charges)
+  const total = summary.thisMonthAmount
+  const daysElapsed = new Date().getDate() // 1..31
+  const dailyAvg = daysElapsed > 0 ? Math.round(total / daysElapsed) : 0
+
+  const daily = calcDailySales(charges, 30)
+  const max = Math.max(0, ...daily.map(d => d.amount))
+
   return (
     <>
       <h2 style={h2}>売上管理</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 16, marginBottom: 24 }}>
-        <div style={{ ...card, textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.mocha }}>今月の売上合計</div>
-          <div style={{ fontSize: 28, fontWeight: 900, fontFamily: fontEn, color: C.terra, marginTop: 8 }}>¥{total.toLocaleString()}</div>
+
+      {!salonId ? (
+        <div style={{ ...card }}>サロンIDが設定されていないため、売上情報を表示できません。</div>
+      ) : error ? (
+        <div style={{ ...card }}>
+          <div style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{error}</div>
+          <button
+            onClick={fetchCharges}
+            style={{ ...btn, width: 'auto', padding: '10px 20px', fontSize: 13, background: C.terra }}
+          >
+            再試行
+          </button>
         </div>
-        <div style={{ ...card, textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.mocha }}>日平均</div>
-          <div style={{ fontSize: 28, fontWeight: 900, fontFamily: fontEn, color: C.sage, marginTop: 8 }}>¥{Math.round(total / MOCK_DAILY_SALES.length).toLocaleString()}</div>
-        </div>
-      </div>
-      <div style={card}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>日別売上</h3>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 180 }}>
-          {MOCK_DAILY_SALES.map((d, i) => (
-            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-              <div style={{ fontSize: 10, color: C.mocha, fontFamily: fontEn }}>{d.amount > 0 ? `${(d.amount / 1000).toFixed(0)}k` : ''}</div>
-              <div style={{ width: '100%', maxWidth: 32, background: d.amount > 0 ? C.terra : C.sand, borderRadius: '4px 4px 0 0', height: max > 0 ? `${(d.amount / max) * 140}px` : 0, minHeight: d.amount > 0 ? 4 : 0, transition: 'height .3s' }} />
-              <div style={{ fontSize: 10, color: C.mocha }}>{d.day}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      ) : (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 16, marginBottom: 24 }}>
+            {loading && !hasFetched ? (
+              <>
+                <KpiSkeleton /><KpiSkeleton />
+              </>
+            ) : (
+              <>
+                <div style={{ ...card, textAlign: 'center' }}>
+                  <div style={{ fontSize: 13, color: C.mocha }}>今月の売上合計</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, fontFamily: fontEn, color: C.terra, marginTop: 8 }}>¥{total.toLocaleString()}</div>
+                </div>
+                <div style={{ ...card, textAlign: 'center' }}>
+                  <div style={{ fontSize: 13, color: C.mocha }}>日平均</div>
+                  <div style={{ fontSize: 28, fontWeight: 900, fontFamily: fontEn, color: C.sage, marginTop: 8 }}>¥{dailyAvg.toLocaleString()}</div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div style={card}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>日別売上（直近30日）</h3>
+            {loading && !hasFetched ? (
+              <ChartSkeleton days={30} />
+            ) : charges.length === 0 ? (
+              <div style={{ color: C.mocha, fontSize: 14, textAlign: 'center', padding: '40px 0' }}>まだ売上データがありません</div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 180, minWidth: daily.length * 28 }}>
+                  {daily.map((d, i) => {
+                    const labelText = d.amount > 0
+                      ? (d.amount >= 10000 ? `${(d.amount / 1000).toFixed(0)}k` : `${d.amount.toLocaleString()}円`)
+                      : ''
+                    return (
+                      <div key={i} style={{ flex: 1, minWidth: 22, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                        <div style={{ fontSize: 10, color: C.mocha, fontFamily: fontEn, height: 14, whiteSpace: 'nowrap' }}>{labelText}</div>
+                        <div style={{ width: '100%', maxWidth: 32, background: d.amount > 0 ? C.terra : C.sand, borderRadius: '4px 4px 0 0', height: max > 0 ? `${(d.amount / max) * 140}px` : 0, minHeight: d.amount > 0 ? 4 : 0, transition: 'height .3s' }} />
+                        <div style={{ fontSize: 10, color: C.mocha, whiteSpace: 'nowrap' }}>{d.date}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </>
   )
 }
@@ -576,7 +692,7 @@ function Dashboard() {
 
   const content = {
     home: <HomeTab salonId={salonId} onSeeAll={() => setTab('pay')} />, pay: <PayTab salonId={salonId} salonName={salonName} />,
-    sales: <SalesTab />, settings: <SettingsTab />,
+    sales: <SalesTab salonId={salonId} />, settings: <SettingsTab />,
   }
 
   return (
