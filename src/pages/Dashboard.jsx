@@ -31,23 +31,229 @@ const TABS = [
    ══════════════════════════════════════════ */
 
 /* ── Home ── */
-function HomeTab() {
-  const cards = [
-    { label: '今月の売上', value: '¥240,000', sub: '前月比 +12%', color: C.terra },
-    { label: '決済件数', value: '38件', sub: '前月比 +5件', color: C.sage },
-  ]
+
+/** Aggregate this-month / last-month succeeded charges from the
+ *  /momupay-get-charges payload. `created` is a Stripe-style unix
+ *  timestamp in seconds; we compare against the operator's local
+ *  month boundaries which is what they intuitively expect.
+ */
+function calcMonthlySummary(charges) {
+  const now = new Date()
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59)
+
+  let thisMonthAmount = 0, thisMonthCount = 0
+  let lastMonthAmount = 0, lastMonthCount = 0
+
+  charges.forEach(c => {
+    if (c.status !== 'succeeded') return
+    const date = new Date((Number(c.created) || 0) * 1000)
+    if (date >= thisMonthStart) {
+      thisMonthAmount += Number(c.amount || 0)
+      thisMonthCount++
+    } else if (date >= lastMonthStart && date <= lastMonthEnd) {
+      lastMonthAmount += Number(c.amount || 0)
+      lastMonthCount++
+    }
+  })
+
+  const monthOverMonthPct = lastMonthAmount > 0
+    ? Math.round(((thisMonthAmount - lastMonthAmount) / lastMonthAmount) * 100)
+    : null
+
+  return { thisMonthAmount, thisMonthCount, lastMonthAmount, lastMonthCount, monthOverMonthPct }
+}
+
+function formatJpDate(isoYmd) {
+  if (!isoYmd) return null
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoYmd)
+  if (!m) return isoYmd
+  return `${Number(m[1])}年${Number(m[2])}月${Number(m[3])}日`
+}
+
+function KpiCard({ label, value, sub, subColor, color }) {
+  return (
+    <div style={{ background: C.white, borderRadius: 16, padding: '24px 20px', boxShadow: '0 2px 12px rgba(92,74,50,.06)' }}>
+      <div style={{ fontSize: 13, color: C.mocha, marginBottom: 8 }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 900, fontFamily: fontEn, color, lineHeight: 1.15, wordBreak: 'break-all' }}>{value}</div>
+      {sub && <div style={{ fontSize: 12, color: subColor || C.mocha, marginTop: 6 }}>{sub}</div>}
+    </div>
+  )
+}
+
+function KpiSkeleton() {
+  return (
+    <div style={{ background: C.white, borderRadius: 16, padding: '24px 20px', boxShadow: '0 2px 12px rgba(92,74,50,.06)' }}>
+      <div style={{ height: 12, width: '40%', background: C.sand, borderRadius: 4, marginBottom: 14 }} />
+      <div style={{ height: 28, width: '70%', background: C.sand, borderRadius: 6, marginBottom: 10 }} />
+      <div style={{ height: 10, width: '50%', background: C.sand, borderRadius: 4 }} />
+    </div>
+  )
+}
+
+function HomeTab({ salonId, onSeeAll }) {
+  const [charges, setCharges] = useState([])
+  const [balance, setBalance] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [hasFetched, setHasFetched] = useState(false)
+
+  const fetchAll = async () => {
+    if (!salonId) return
+    setLoading(true)
+    setError(null)
+    try {
+      const [chargesRes, balanceRes] = await Promise.all([
+        fetch('https://n8n.kikitte.com/webhook/momupay-get-charges', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ salonId, limit: 100 }),
+        }),
+        fetch('https://n8n.kikitte.com/webhook/momupay-get-balance', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ salonId }),
+        }),
+      ])
+      if (!chargesRes.ok || !balanceRes.ok) throw new Error('データの取得に失敗しました')
+      const chargesData = await chargesRes.json()
+      const balanceData = await balanceRes.json()
+      setCharges(chargesData.charges || [])
+      setBalance(balanceData || null)
+    } catch (e) {
+      setError(e.message || 'データの取得に失敗しました')
+    } finally {
+      setLoading(false)
+      setHasFetched(true)
+    }
+  }
+
+  useEffect(() => {
+    if (!salonId) return
+    fetchAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salonId])
+
+  const summary = calcMonthlySummary(charges)
+  const recent = charges.slice(0, 5)
+
+  /* MoM display: "+12%" green / "-5%" red / "—" muted when last month had zero */
+  let momText = '—'
+  let momColor = C.mocha
+  if (summary.monthOverMonthPct != null) {
+    const v = summary.monthOverMonthPct
+    momText = `前月比 ${v >= 0 ? '+' : ''}${v}%`
+    momColor = v >= 0 ? C.sage : '#dc2626'
+  }
+
+  /* Next payout sub-line for the balance card */
+  let payoutSub = '次回入金: 未定'
+  if (balance && balance.next_payout_date) {
+    const d = formatJpDate(balance.next_payout_date)
+    const amt = balance.next_payout_amount != null
+      ? `¥${Number(balance.next_payout_amount).toLocaleString()}`
+      : ''
+    payoutSub = `次回入金: ${d}${amt ? ` ${amt}` : ''}`
+  }
+
   return (
     <>
       <h2 style={h2}>ダッシュボード</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 32 }}>
-        {cards.map((c, i) => (
-          <div key={i} style={{ background: C.white, borderRadius: 16, padding: '24px 20px', boxShadow: '0 2px 12px rgba(92,74,50,.06)' }}>
-            <div style={{ fontSize: 13, color: C.mocha, marginBottom: 8 }}>{c.label}</div>
-            <div style={{ fontSize: 28, fontWeight: 900, fontFamily: fontEn, color: c.color }}>{c.value}</div>
-            <div style={{ fontSize: 12, color: C.sage, marginTop: 6 }}>{c.sub}</div>
+
+      {!salonId ? (
+        <div style={{ ...card }}>サロンIDが設定されていないため、ダッシュボード情報を表示できません。</div>
+      ) : error ? (
+        <div style={{ ...card }}>
+          <div style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{error}</div>
+          <button
+            onClick={fetchAll}
+            style={{ ...btn, width: 'auto', padding: '10px 20px', fontSize: 13, background: C.terra }}
+          >
+            再試行
+          </button>
+        </div>
+      ) : (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 28 }}>
+            {loading && !hasFetched ? (
+              <>
+                <KpiSkeleton /><KpiSkeleton /><KpiSkeleton />
+              </>
+            ) : (
+              <>
+                <KpiCard
+                  label="今月の売上"
+                  value={`¥${summary.thisMonthAmount.toLocaleString()}`}
+                  sub={momText}
+                  subColor={momColor}
+                  color={C.terra}
+                />
+                <KpiCard
+                  label="今月の決済件数"
+                  value={`${summary.thisMonthCount}件`}
+                  sub={summary.lastMonthCount > 0 ? `前月: ${summary.lastMonthCount}件` : null}
+                  color={C.sage}
+                />
+                <KpiCard
+                  label="入金予定額"
+                  value={`¥${Number((balance && balance.pending) || 0).toLocaleString()}`}
+                  sub={payoutSub}
+                  color={C.gold}
+                />
+              </>
+            )}
           </div>
-        ))}
-      </div>
+
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 900 }}>直近の決済</h3>
+            {onSeeAll && (
+              <button
+                onClick={onSeeAll}
+                style={{ background: 'transparent', border: 'none', color: C.terra, fontFamily: font, fontWeight: 700, fontSize: 13, cursor: 'pointer', padding: 0 }}
+              >
+                すべて見る →
+              </button>
+            )}
+          </div>
+
+          {loading && !hasFetched ? (
+            <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>読み込み中...</div>
+          ) : recent.length === 0 ? (
+            <div style={{ ...card, color: C.mocha, fontSize: 14, textAlign: 'center' }}>まだ決済データがありません</div>
+          ) : (
+            <div style={{ ...card, padding: 0, overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: C.cream }}>
+                    <th style={salesTh}>日時</th>
+                    <th style={{ ...salesTh, textAlign: 'right' }}>金額</th>
+                    <th style={salesTh}>お客様名</th>
+                    <th style={salesTh}>施術内容</th>
+                    <th style={salesTh}>ステータス</th>
+                    <th style={salesTh}>決済コード</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recent.map((c, i) => {
+                    const customerName = cleanField(c.customer_name)
+                    const memo = cleanField(c.memo)
+                    return (
+                      <tr key={c.payment_intent_id || c.payment_code || i}
+                        style={{ background: i % 2 === 0 ? C.white : C.cream, height: 48 }}>
+                        <td style={{ ...salesTd, whiteSpace: 'nowrap', fontFamily: fontEn, fontSize: 12, color: C.bark }}>{c.created_jst || '—'}</td>
+                        <td style={{ ...salesTd, textAlign: 'right', whiteSpace: 'nowrap', fontFamily: fontEn, fontWeight: 700 }}>¥{Number(c.amount || 0).toLocaleString()}</td>
+                        <td style={{ ...salesTd, whiteSpace: 'nowrap' }}>{customerName || '—'}</td>
+                        <td style={{ ...salesTd }}>{memo || '—'}</td>
+                        <td style={{ ...salesTd, whiteSpace: 'nowrap' }}><StatusBadge status={c.status} /></td>
+                        <td style={{ ...salesTd, whiteSpace: 'nowrap', fontFamily: fontEn, fontSize: 12, color: C.mocha }}>{c.payment_code || '—'}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
     </>
   )
 }
@@ -369,7 +575,7 @@ function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const content = {
-    home: <HomeTab />, pay: <PayTab salonId={salonId} salonName={salonName} />,
+    home: <HomeTab salonId={salonId} onSeeAll={() => setTab('pay')} />, pay: <PayTab salonId={salonId} salonName={salonName} />,
     sales: <SalesTab />, settings: <SettingsTab />,
   }
 
