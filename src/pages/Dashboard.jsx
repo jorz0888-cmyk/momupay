@@ -58,13 +58,6 @@ function calcMonthlySummary(charges) {
   return { thisMonthAmount, thisMonthCount, lastMonthAmount, lastMonthCount, monthOverMonthPct }
 }
 
-function formatJpDate(isoYmd) {
-  if (!isoYmd) return null
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoYmd)
-  if (!m) return isoYmd
-  return `${Number(m[1])}年${Number(m[2])}月${Number(m[3])}日`
-}
-
 function KpiCard({ label, value, sub, subColor, color }) {
   return (
     <div style={{ background: C.white, borderRadius: 16, padding: '24px 20px', boxShadow: '0 2px 12px rgba(92,74,50,.06)' }}>
@@ -138,14 +131,24 @@ function HomeTab({ salonId, onSeeAll }) {
     momColor = v >= 0 ? C.sage : '#dc2626'
   }
 
-  /* Next payout sub-line for the balance card */
-  let payoutSub = '次回入金は調整中です'
-  if (balance && balance.next_payout_date) {
-    const d = formatJpDate(balance.next_payout_date)
-    const amt = balance.next_payout_amount != null
-      ? `¥${Number(balance.next_payout_amount).toLocaleString()}`
-      : ''
-    payoutSub = `次回入金: ${d}${amt ? ` ${amt}` : ''}`
+  /* Upcoming-payout card values.
+     The card shows total upcoming = available + pending so it doesn't
+     drop to ¥0 the moment Stripe moves a charge from pending into the
+     available bucket (which happens ~7 days after capture). The sub-
+     line then disambiguates which portion is which. */
+  const available = Math.max(0, Number(balance?.available || 0))
+  const pending = Math.max(0, Number(balance?.pending || 0))
+  const totalUpcoming = available + pending
+
+  let payoutSub
+  if (available > 0 && pending > 0) {
+    payoutSub = `次回入金 ¥${available.toLocaleString()} ／ 保留中 ¥${pending.toLocaleString()}`
+  } else if (available > 0) {
+    payoutSub = '次回入金: 近日中'
+  } else if (pending > 0) {
+    payoutSub = '次回入金は調整中です'
+  } else {
+    payoutSub = 'お会計をお待ちしています'
   }
 
   return (
@@ -191,7 +194,7 @@ function HomeTab({ salonId, onSeeAll }) {
                 />
                 <KpiCard
                   label="入金予定額"
-                  value={`¥${Number((balance && balance.pending) || 0).toLocaleString()}`}
+                  value={`¥${totalUpcoming.toLocaleString()}`}
                   sub={payoutSub}
                   color={C.gold}
                 />
