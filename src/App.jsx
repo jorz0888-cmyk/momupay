@@ -14,25 +14,19 @@ const IMAGES = {
 function App() {
   const navigate = useNavigate()
 
-  // The PWA's start_url is "/", so logged-in salon staff who tap the
-  // home-screen icon land here. Bounce them straight into /dashboard
-  // before painting the LP — and don't paint anything while we wait,
-  // so the marketing page never flashes for an existing user.
-  // Guests fall through to LP rendering below.
-  const [authChecked, setAuthChecked] = useState(false)
+  // The PWA's start_url is "/", so a logged-in salon staffer tapping the
+  // home-screen icon lands here. Send them on to /dashboard. We do NOT
+  // gate render on the session check: the LP's scroll-fade IntersectionObserver
+  // (set up in the effect below) only enumerates [data-animate] elements
+  // once at mount, so if the LP isn't in the DOM during that mount the
+  // observer never registers them and the sections render permanently
+  // collapsed. Always render the LP; allow a ~50ms LP flash for the
+  // logged-in case in exchange for a working LP for guests.
   useEffect(() => {
     let mounted = true
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return
-      if (session) {
-        navigate('/dashboard', { replace: true })
-        return
-      }
-      setAuthChecked(true)
-    }).catch(() => {
-      // Session lookup failed (network, etc.) — degrade to showing the LP.
-      if (mounted) setAuthChecked(true)
-    })
+      if (mounted && session) navigate('/dashboard', { replace: true })
+    }).catch(() => { /* ignore — guests just see the LP */ })
     return () => { mounted = false }
   }, [navigate])
 
@@ -103,13 +97,6 @@ function App() {
   }
 
   const vis = (id) => visibleSections.has(id) ? 'section--visible' : ''
-
-  // Hold the LP back until we've confirmed the visitor is a guest. Render
-  // a same-color placeholder (matches the LP cream background) so there's
-  // no white flash between auth check → either redirect or LP paint.
-  if (!authChecked) {
-    return <div style={{ minHeight: '100vh', background: '#FAF6F1' }} aria-hidden="true" />
-  }
 
   return (
     <div className="app">
