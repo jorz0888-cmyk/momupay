@@ -2,7 +2,7 @@
   "name": "MomuPay",
   "short_name": "MomuPay",
   "description": "サロンとお客様を、もっと軽やかに。",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#FAF6F1",
