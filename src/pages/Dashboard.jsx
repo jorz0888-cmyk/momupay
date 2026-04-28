@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import PaymentQrOverlay from '../components/PaymentQrOverlay.jsx'
+import { supabase } from '../lib/supabase.js'
 
 /* ── color tokens ── */
 const C = {
@@ -689,12 +690,21 @@ const errBox = { background: '#fef2f2', border: '1px solid #fca5a5', borderRadiu
    ══════════════════════════════════════════ */
 
 function Dashboard() {
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const salonId = searchParams.get('salonId') || ''
   const salonName = searchParams.get('salonName') || 'MomuPay加盟店'
 
   const [tab, setTab] = useState('home')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
+
+  const handleSignOut = async () => {
+    if (signingOut) return
+    setSigningOut(true)
+    try { await supabase.auth.signOut() } catch { /* ignore — we navigate either way */ }
+    navigate('/login', { replace: true })
+  }
 
   const content = {
     home: <HomeTab salonId={salonId} onSeeAll={() => setTab('pay')} />, pay: <PayTab salonId={salonId} salonName={salonName} />,
@@ -733,7 +743,29 @@ function Dashboard() {
             </div>
           ))}
         </nav>
-        <div style={{ padding: '12px 20px', fontSize: 12, color: C.mocha }}>{salonName}</div>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,.08)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ fontSize: 12, color: C.mocha }}>{salonName}</div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            disabled={signingOut}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,.18)',
+              borderRadius: 8,
+              padding: '8px 12px',
+              color: C.cream,
+              fontFamily: font,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: signingOut ? 'not-allowed' : 'pointer',
+              opacity: signingOut ? 0.5 : 1,
+              textAlign: 'left',
+            }}
+          >
+            {signingOut ? 'ログアウト中...' : 'ログアウト'}
+          </button>
+        </div>
       </aside>
 
       {/* Main content */}

@@ -10,19 +10,32 @@ import RegisterComplete from './pages/RegisterComplete.jsx'
 import PaySuccess from './pages/PaySuccess.jsx'
 import PayCancel from './pages/PayCancel.jsx'
 import Legal from './pages/Legal.jsx'
+import Login from './pages/Login.jsx'
+import AuthCallback from './pages/AuthCallback.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
+        {/* Public marketing + onboarding */}
         <Route path="/" element={<App />} />
-        <Route path="/pay" element={<PaymentLink />} />
         <Route path="/register" element={<Register />} />
         <Route path="/register/complete" element={<RegisterComplete />} />
+        <Route path="/legal" element={<Legal />} />
+
+        {/* Authentication */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+
+        {/* Customer-facing payment result pages — public on purpose, the
+            customer arriving from Stripe is not a salon-side user. */}
         <Route path="/pay/success" element={<PaySuccess />} />
         <Route path="/pay/cancel" element={<PayCancel />} />
-        <Route path="/legal" element={<Legal />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Salon-side, authenticated only */}
+        <Route path="/pay" element={<ProtectedRoute><PaymentLink /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
