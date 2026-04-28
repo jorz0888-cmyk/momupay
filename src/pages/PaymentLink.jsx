@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import PaymentQrOverlay from '../components/PaymentQrOverlay.jsx'
+import { supabase } from '../lib/supabase.js'
 
 const styles = {
   page: {
@@ -184,9 +185,44 @@ const styles = {
 }
 
 function PaymentLink() {
-  const [searchParams] = useSearchParams()
-  const salonId = searchParams.get('salonId') || ''
-  const salonName = searchParams.get('salonName') || 'MomuPay加盟店'
+  const navigate = useNavigate()
+
+  // Auth-driven salon context. ProtectedRoute already guarantees a session;
+  // user_metadata may still be missing (Stripe link-up not yet complete).
+  // States: loading | ready | nodata | error
+  const [authStatus, setAuthStatus] = useState('loading')
+  const [salonId, setSalonId] = useState('')
+  const [salonName, setSalonName] = useState('')
+  const [signingOut, setSigningOut] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    supabase.auth.getUser().then(({ data, error }) => {
+      if (!mounted) return
+      const user = data?.user
+      if (error || !user) { setAuthStatus('error'); return }
+      const metaId = user.user_metadata?.salonId
+      const metaName = user.user_metadata?.salonName
+      if (!metaId) {
+        setSalonName(metaName || '')
+        setAuthStatus('nodata')
+        return
+      }
+      setSalonId(metaId)
+      setSalonName(metaName || 'MomuPay加盟店')
+      setAuthStatus('ready')
+    }).catch(() => {
+      if (mounted) setAuthStatus('error')
+    })
+    return () => { mounted = false }
+  }, [])
+
+  const handleSignOut = async () => {
+    if (signingOut) return
+    setSigningOut(true)
+    try { await supabase.auth.signOut() } catch { /* ignore */ }
+    navigate('/login', { replace: true })
+  }
 
   const [amount, setAmount] = useState('')
   const [customerName, setCustomerName] = useState('')
@@ -250,6 +286,18 @@ function PaymentLink() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
+  }
+
+  if (authStatus === 'loading') return <PaymentLinkSkeleton />
+  if (authStatus === 'error' || authStatus === 'nodata') {
+    return (
+      <PaymentLinkAuthError
+        kind={authStatus}
+        salonName={salonName}
+        onSignOut={handleSignOut}
+        signingOut={signingOut}
+      />
+    )
   }
 
   return (
@@ -382,6 +430,89 @@ function PaymentLink() {
           onClose={() => setShowQrFullscreen(false)}
         />
       )}
+    </div>
+  )
+}
+
+/* ── Auth-state placeholders ────────────────────────── */
+
+const paymentLinkAuthCss = `@keyframes momupay-pay-spin { to { transform: rotate(360deg) } }`
+
+function PaymentLinkSkeleton() {
+  return (
+    <div style={{ ...styles.page, display: 'flex', flexDirection: 'column' }}>
+      <style>{paymentLinkAuthCss}</style>
+      <header style={styles.header}>
+        <div style={styles.logoMark}>M</div>
+        <span style={styles.logoText}>Momu<span style={styles.logoAccent}>Pay</span></span>
+      </header>
+      <main style={{ ...styles.main, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+        <div style={{ background: '#fff', borderRadius: 24, padding: '48px 32px', boxShadow: '0 8px 30px rgba(92,74,50,.08)', textAlign: 'center', maxWidth: 360, width: '100%' }}>
+          <div style={{ width: 36, height: 36, borderRadius: '50%', border: '3px solid #E8DDD0', borderTopColor: '#C4745A', margin: '0 auto 14px', animation: 'momupay-pay-spin 0.9s linear infinite' }} />
+          <div style={{ fontSize: 13, color: '#8B7355' }}>サロン情報を読み込んでいます...</div>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+function PaymentLinkAuthError({ kind, salonName, onSignOut, signingOut }) {
+  const isError = kind === 'error'
+  return (
+    <div style={{ ...styles.page, display: 'flex', flexDirection: 'column' }}>
+      <header style={styles.header}>
+        <div style={styles.logoMark}>M</div>
+        <span style={styles.logoText}>Momu<span style={styles.logoAccent}>Pay</span></span>
+      </header>
+      <main style={{ ...styles.main, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+        <div style={{ background: '#fff', borderRadius: 24, padding: '48px 32px', boxShadow: '0 8px 30px rgba(92,74,50,.08)', textAlign: 'center', maxWidth: 460, width: '100%' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#F3EAE0', color: '#C4745A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, margin: '0 auto 18px' }}>!</div>
+          <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 12 }}>
+            {isError ? 'サロン情報の読み込みに失敗しました' : 'サロン情報が見つかりません'}
+          </h1>
+          <p style={{ color: '#5C4A32', fontSize: 14, lineHeight: 1.8, marginBottom: 24 }}>
+            {isError ? (
+              <>
+                認証情報の取得中にエラーが発生しました。<br />
+                一度ログアウトしてからもう一度お試しください。
+              </>
+            ) : (
+              <>
+                {salonName ? <><strong>{salonName}</strong> さん、</> : ''}
+                サロンID（Stripe アカウント）の登録が<br />
+                まだ完了していないようです。
+              </>
+            )}
+          </p>
+          {!isError && (
+            <p style={{ fontSize: 13, color: '#8B7355', lineHeight: 1.8, marginBottom: 24 }}>
+              お手数ですが、<a href="mailto:info@momupay.com" style={{ color: '#C4745A', fontWeight: 700 }}>info@momupay.com</a> までご連絡ください。
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={onSignOut}
+            disabled={signingOut}
+            style={{
+              background: 'transparent',
+              border: '1.5px solid #E8DDD0',
+              borderRadius: 10,
+              padding: '10px 24px',
+              color: '#5C4A32',
+              fontFamily: "'Zen Maru Gothic', sans-serif",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: signingOut ? 'not-allowed' : 'pointer',
+              opacity: signingOut ? 0.5 : 1,
+            }}
+          >
+            {signingOut ? 'ログアウト中...' : 'ログアウトしてやり直す'}
+          </button>
+          <div style={{ marginTop: 18, fontSize: 12, color: '#8B7355' }}>
+            <Link to="/" style={{ color: '#8B7355', textDecoration: 'none' }}>← MomuPayトップへ戻る</Link>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }

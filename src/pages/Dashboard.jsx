@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PaymentQrOverlay from '../components/PaymentQrOverlay.jsx'
 import { supabase } from '../lib/supabase.js'
 
@@ -686,14 +686,119 @@ const btn = { width: '100%', padding: '13px 24px', border: 'none', borderRadius:
 const errBox = { background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '12px 16px', marginTop: 14, color: '#dc2626', fontSize: 14 }
 
 /* ══════════════════════════════════════════
+   Auth-state placeholders
+   ══════════════════════════════════════════ */
+
+const placeholderKeyframes = `@keyframes momupay-dash-spin { to { transform: rotate(360deg) } }`
+
+function DashboardSkeleton() {
+  return (
+    <div style={{ minHeight: '100vh', background: C.cream, fontFamily: font, color: C.espresso, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <style>{placeholderKeyframes}</style>
+      <div style={{ background: C.white, borderRadius: 24, padding: '48px 32px', boxShadow: '0 8px 30px rgba(92,74,50,.08)', textAlign: 'center', maxWidth: 360, width: '100%' }}>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', border: `3px solid ${C.sand}`, borderTopColor: C.terra, margin: '0 auto 14px', animation: 'momupay-dash-spin 0.9s linear infinite' }} />
+        <div style={{ fontSize: 13, color: C.mocha }}>サロン情報を読み込んでいます...</div>
+      </div>
+    </div>
+  )
+}
+
+function SalonInfoMissing({ kind, salonName, onSignOut, signingOut }) {
+  const isError = kind === 'error'
+  return (
+    <div style={{ minHeight: '100vh', background: C.cream, fontFamily: font, color: C.espresso, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ background: C.white, borderRadius: 24, padding: '48px 32px', boxShadow: '0 8px 30px rgba(92,74,50,.08)', textAlign: 'center', maxWidth: 460, width: '100%' }}>
+        <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#F3EAE0', color: C.terra, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, margin: '0 auto 18px' }}>!</div>
+        <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 12 }}>
+          {isError ? 'サロン情報の読み込みに失敗しました' : 'サロン情報が見つかりません'}
+        </h1>
+        <p style={{ color: C.bark, fontSize: 14, lineHeight: 1.8, marginBottom: 24 }}>
+          {isError ? (
+            <>
+              認証情報の取得中にエラーが発生しました。<br />
+              一度ログアウトしてからもう一度お試しください。
+            </>
+          ) : (
+            <>
+              {salonName ? <><strong>{salonName}</strong> さん、</> : ''}
+              ご登録は確認できましたが、<br />
+              サロンID（Stripe アカウント）の登録が<br />
+              まだ完了していないようです。
+            </>
+          )}
+        </p>
+        {!isError && (
+          <p style={{ fontSize: 13, color: C.mocha, lineHeight: 1.8, marginBottom: 24 }}>
+            お手数ですが、<a href="mailto:info@momupay.com" style={{ color: C.terra, fontWeight: 700 }}>info@momupay.com</a> までご連絡ください。<br />
+            設定状況を確認の上、ご案内いたします。
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={onSignOut}
+          disabled={signingOut}
+          style={{
+            background: 'transparent',
+            border: `1.5px solid ${C.sand}`,
+            borderRadius: 10,
+            padding: '10px 24px',
+            color: C.bark,
+            fontFamily: font,
+            fontWeight: 700,
+            fontSize: 13,
+            cursor: signingOut ? 'not-allowed' : 'pointer',
+            opacity: signingOut ? 0.5 : 1,
+          }}
+        >
+          {signingOut ? 'ログアウト中...' : 'ログアウトしてやり直す'}
+        </button>
+        <div style={{ marginTop: 18, fontSize: 12, color: C.mocha }}>
+          <Link to="/" style={{ color: C.mocha, textDecoration: 'none' }}>← MomuPayトップへ戻る</Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════
    Main Dashboard layout
    ══════════════════════════════════════════ */
 
 function Dashboard() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const salonId = searchParams.get('salonId') || ''
-  const salonName = searchParams.get('salonName') || 'MomuPay加盟店'
+
+  // Auth-driven salon context. ProtectedRoute already guarantees we have a
+  // session, but user_metadata can still be missing (e.g., a user that
+  // signed in before Stripe onboarding wrote salonId back to Supabase).
+  // States: loading | ready | nodata | error
+  const [authStatus, setAuthStatus] = useState('loading')
+  const [salonId, setSalonId] = useState('')
+  const [salonName, setSalonName] = useState('')
+
+  useEffect(() => {
+    let mounted = true
+    supabase.auth.getUser().then(({ data, error }) => {
+      if (!mounted) return
+      const user = data?.user
+      if (error || !user) {
+        setAuthStatus('error')
+        return
+      }
+      const metaId = user.user_metadata?.salonId
+      const metaName = user.user_metadata?.salonName
+      if (!metaId) {
+        setSalonName(metaName || '')
+        setAuthStatus('nodata')
+        return
+      }
+      setSalonId(metaId)
+      setSalonName(metaName || 'MomuPay加盟店')
+      setAuthStatus('ready')
+    }).catch(() => {
+      if (mounted) setAuthStatus('error')
+    })
+    return () => { mounted = false }
+  }, [])
 
   const [tab, setTab] = useState('home')
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -709,6 +814,20 @@ function Dashboard() {
   const content = {
     home: <HomeTab salonId={salonId} onSeeAll={() => setTab('pay')} />, pay: <PayTab salonId={salonId} salonName={salonName} />,
     sales: <SalesTab salonId={salonId} />, settings: <SettingsTab />,
+  }
+
+  if (authStatus === 'loading') {
+    return <DashboardSkeleton />
+  }
+  if (authStatus === 'error' || authStatus === 'nodata') {
+    return (
+      <SalonInfoMissing
+        kind={authStatus}
+        salonName={salonName}
+        onSignOut={handleSignOut}
+        signingOut={signingOut}
+      />
+    )
   }
 
   return (
