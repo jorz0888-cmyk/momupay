@@ -391,7 +391,7 @@ function App() {
             <div className="modal__card">
               <div className="modal__badge">スタンダードプラン</div>
               <div className="modal__price">
-                <span className="modal__num">7.9</span>
+                <span className="modal__num">6.8</span>
                 <span className="modal__pct">%</span>
                 <span className="modal__per">/ お会計ごと</span>
               </div>
@@ -406,7 +406,7 @@ function App() {
               </ul>
               <button className="btn btn--dark btn--full" onClick={() => { setShowPricing(false); navigate('/register') }}>無料で始める</button>
             </div>
-            <p className="modal__note">※ 決済手数料にはクレジットカード処理手数料が含まれます。<br />※ 売上振込は15日締め・月末締めの月2回。振込手数料（250円+税/回）はサロン様のご負担となります。</p>
+            <p className="modal__note">※ 決済手数料にはクレジットカード処理手数料が含まれます。<br />※ 売上は毎月1日・15日の月2回、ご登録の銀行口座へ自動入金されます。振込手数料は無料です。<br />※ 即時入金をご希望の場合は、別途 1.5% の手数料がかかります。</p>
           </div>
         </div>
       )}

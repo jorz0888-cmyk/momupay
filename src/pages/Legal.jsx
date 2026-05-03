@@ -53,8 +53,8 @@ function Legal() {
               <tr><th style={s.th}>メールアドレス</th><td style={s.td}>info@momupay.com</td></tr>
               <tr><th style={s.th}>サービス内容</th><td style={s.td}>リラクゼーションサロン向けの予約管理および決済代行サービス</td></tr>
               <tr><th style={s.th}>販売価格</th><td style={s.td}>各加盟サロンが設定する施術料金に準じます。料金は各サロンの予約ページに表示されます。</td></tr>
-              <tr><th style={s.th}>料金</th><td style={s.td}>決済手数料: 決済金額の7.9%（税込）。初期費用・月額費用は無料。</td></tr>
-              <tr><th style={s.th}>追加手数料</th><td style={s.td}>決済手数料（7.9%）以外の追加手数料はございません。</td></tr>
+              <tr><th style={s.th}>料金</th><td style={s.td}>決済手数料: 決済金額の6.8%（税込）。初期費用・月額費用は無料。</td></tr>
+              <tr><th style={s.th}>追加手数料</th><td style={s.td}>決済手数料（6.8%）以外の手数料はございません。即時入金をご希望の場合のみ、別途 1.5% の手数料がかかります。</td></tr>
               <tr><th style={s.th}>支払方法</th><td style={s.td}>クレジットカード（Visa, Mastercard, Amex, JCB）</td></tr>
               <tr><th style={s.th}>支払時期</th><td style={s.td}>サービス予約確定時に決済</td></tr>
               <tr><th style={s.th}>決済期間</th><td style={s.td}>クレジットカード決済は即時処理されます。</td></tr>
@@ -102,9 +102,9 @@ function Legal() {
           <h3 style={s.subhead}>第2条（サービス内容）</h3>
           <p style={s.section}>リラクゼーションサロンに対し、オンライン予約管理機能およびクレジットカード決済代行サービスを提供します。</p>
           <h3 style={s.subhead}>第3条（利用料金）</h3>
-          <p style={s.section}>決済金額の7.9%（税込）。初期費用・月額固定費用なし。</p>
+          <p style={s.section}>決済金額の6.8%（税込）。初期費用・月額固定費用なし。</p>
           <h3 style={s.subhead}>第4条（売上金の支払い）</h3>
-          <p style={s.section}>手数料差し引き後、毎月15日締め・月末締めで指定口座にお振込みします。</p>
+          <p style={s.section}>サロン様への売上振込は毎月1日・15日の月2回、ご登録の銀行口座へ自動入金されます。振込手数料は無料です。即時入金をご希望の場合は、別途 1.5% の手数料がかかります。</p>
           <h3 style={s.subhead}>第5条（禁止事項）</h3>
           <p style={s.section}>法令違反、権利侵害、虚偽情報登録等を禁止します。</p>
           <h3 style={s.subhead}>第6条（免責）</h3>
