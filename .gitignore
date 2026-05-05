@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# One-off operational scripts (live-Stripe cleanup, etc.) — kept out of
+# the repo so secrets-adjacent code doesn't get accidentally committed.
+scripts/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
