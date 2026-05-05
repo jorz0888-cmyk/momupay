@@ -105,18 +105,33 @@ function Register() {
   }
 
   const handleSubmit = async () => {
+    // Sanitize before validating + submitting. Salon staff routinely paste
+    // values with stray whitespace (esp. spaces / 全角 spaces in emails)
+    // which Stripe rejects as "Invalid email address". Normalize once,
+    // here, and use the same shape for both the required check and the
+    // POST body so what we validate is what we send.
+    const sanitized = {
+      salonName: form.salonName.trim(),
+      ownerName: form.ownerName.trim(),
+      email: form.email.replace(/\s/g, ''),         // strip ALL whitespace incl 全角 / tab / nl
+      phone: form.phone.replace(/[^0-9]/g, ''),     // digits-only; "(090) 1234-5678" → "09012345678"
+      businessType: form.businessType,              // <select>, no whitespace possible
+      address: form.address.trim(),
+      agreeTerms: form.agreeTerms,
+    }
+
     const required = [
       ['salonName', 'サロン名'], ['ownerName', '代表者名'],
       ['email', 'メールアドレス'], ['businessType', '業態'],
     ]
     for (const [key, label] of required) {
-      if (!form[key].trim()) {
+      if (!sanitized[key]) {
         setErrorMsg(`${label}を入力してください。`)
         setStatus('error')
         return
       }
     }
-    if (!form.agreeTerms) {
+    if (!sanitized.agreeTerms) {
       setErrorMsg('利用規約への同意が必要です。')
       setStatus('error')
       return
@@ -127,7 +142,7 @@ function Register() {
       const res = await fetch('https://n8n.kikitte.com/webhook/momupay-register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(sanitized),
       })
       if (!res.ok) throw new Error('送信に失敗しました。')
       const data = await res.json().catch(() => ({}))
