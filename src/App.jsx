@@ -115,6 +115,7 @@ function App() {
             <li onClick={() => scrollTo('features')}>特徴</li>
             <li onClick={() => scrollTo('flow')}>ご利用の流れ</li>
             <li onClick={() => setShowPricing(true)} className="nav__pricing">料金</li>
+            <li onClick={() => navigate('/login')} className="nav__login">ログイン</li>
             <li onClick={() => navigate('/register')} className="nav__register">サロン登録</li>
             <li onClick={() => scrollTo('contact')} className="nav__cta-link">お問い合わせ</li>
           </ul>
@@ -371,6 +372,24 @@ function App() {
             <span className="logo-text" style={{ color: '#FAF6F1' }}>Momu<span className="logo-accent">Pay</span></span>
           </div>
           <p className="footer__desc">リラクゼーションサロン向け 予約・お会計プラットフォーム</p>
+          <div className="footer__account" style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span
+              onClick={() => navigate('/login')}
+              style={{ fontSize: 13, color: '#FAF6F1', cursor: 'pointer', fontWeight: 700, transition: 'color .2s' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#C4745A' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#FAF6F1' }}
+            >
+              ログイン
+            </span>
+            <span
+              onClick={() => navigate('/register')}
+              style={{ fontSize: 13, color: '#FAF6F1', cursor: 'pointer', fontWeight: 700, transition: 'color .2s' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#C4745A' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#FAF6F1' }}
+            >
+              サロン登録
+            </span>
+          </div>
           <div className="footer__links">
             <span onClick={() => navigate('/legal#tokusho')}>特定商取引法に基づく表記</span>
             <span onClick={() => navigate('/legal#privacy')}>プライバシーポリシー</span>
