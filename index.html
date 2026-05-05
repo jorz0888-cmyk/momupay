@@ -5,8 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <!-- PWA -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA — manifest <link> is injected by vite-plugin-pwa at build
+         time (it emits /manifest.webmanifest). theme-color stays here so
+         iOS Safari can paint the title bar before JS runs. -->
     <meta name="theme-color" content="#2C2418" />
     <meta name="description" content="サロンとお客様を、もっと軽やかに。" />
 
